@@ -4,6 +4,77 @@ import Footer from "../components/Footer";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 
+const MAX_FATURAMENTO = 15000;
+const SALARIO_MINIMO = 1621;
+const PROFISSOES = [
+  { value: "psicologo", label: "Psicólogo(a)" },
+  { value: "arquiteto", label: "Arquiteto(a)" },
+  { value: "advogado", label: "Advogado(a)" },
+];
+
+function calcularImpostos(faturamento, profissao, impostoPJ) {
+  const aliquota = profissao === "advogado" ? "4,5%" : "6%";
+  const fatorAliquota = profissao === "advogado" ? 0.045 : 0.06;
+  const salarioBase = Math.max(faturamento * 0.28, SALARIO_MINIMO);
+
+  return {
+    simples: faturamento * fatorAliquota,
+    aliquota,
+    salarioBase,
+    inss: salarioBase * 0.11,
+    total: impostoPJ,
+  };
+}
+
+function ResultadoCalculo({
+  resultado,
+  mostrarEmail,
+  setMostrarEmail,
+  email,
+  setEmail,
+  mensagemEnvio,
+  onEnviarEmail,
+  isVisible,
+}) {
+  if (!resultado) return null;
+
+  return (
+    <div className={`bg-gray-50 border border-naf-gray/20 rounded-xl shadow-inner mt-4 p-5 transition-all duration-[700ms] ease-out delay-[200ms] ${isVisible ? "opacity-100 translate-y-0" : "opacity-0"}`}>
+      {typeof resultado === "string" ? (
+        <p className="text-naf-red font-medium">{resultado}</p>
+      ) : (
+        <>
+          <div className="space-y-2 text-sm text-naf-blue">
+            <p><strong>Simples Nacional ({resultado.aliquota}):</strong> R$ {resultado.simples.toFixed(2)}</p>
+            <p><strong>Pró-labore base:</strong> R$ {resultado.salarioBase.toFixed(2)}</p>
+            <p><strong>INSS (11%):</strong> R$ {resultado.inss.toFixed(2)}</p>
+          </div>
+          <p className="text-lg font-bold text-naf-red mt-3 pt-3 border-t border-naf-gray/30">
+            Total a pagar: R$ {resultado.total.toFixed(2)}
+          </p>
+
+          <div className="mt-5 pt-3 border-t border-naf-gray/30">
+            <p className="text-sm font-medium text-naf-blue mb-3 text-center">Deseja receber os resultados por e-mail?</p>
+            <div className="flex gap-3 justify-center">
+              <button onClick={() => setMostrarEmail(true)} className="bg-naf-blue text-white px-5 py-2 rounded-xl hover:bg-[#0c1825] transition shadow-sm text-sm font-medium">Sim</button>
+              <button onClick={() => setMostrarEmail(false)} className="bg-white border border-naf-gray text-naf-blue px-5 py-2 rounded-xl hover:bg-gray-100 transition shadow-sm text-sm font-medium">Não</button>
+            </div>
+
+            {mostrarEmail && (
+              <div className="mt-4 space-y-3">
+                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Digite seu e-mail" className="w-full border border-naf-gray px-4 py-2 rounded-xl focus:ring-2 focus:ring-naf-red outline-none text-sm" />
+                <button onClick={onEnviarEmail} className="w-full bg-naf-red text-white py-2 rounded-xl hover:bg-[#a62b18] transition text-sm font-bold shadow-sm">Enviar resultados</button>
+              </div>
+            )}
+
+            {mensagemEnvio && <p className="text-green-600 mt-3 text-sm font-bold text-center">{mensagemEnvio}</p>}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 export default function CalculoPJ() {
   const [renda, setRenda] = useState("");
   const [erro, setErro] = useState("");
@@ -32,18 +103,23 @@ export default function CalculoPJ() {
 
   const handleRendaChange = (e) => {
     const valor = parseFloat(e.target.value);
-    if (valor > 15000) {
+    if (valor > MAX_FATURAMENTO) {
       setErro("O valor máximo permitido é R$ 15.000,00");
-      setRenda(15000);
+      setRenda(MAX_FATURAMENTO);
     } else {
       setErro("");
       setRenda(e.target.value);
     }
   };
 
+  const resetarEnvioEmail = () => {
+    setMostrarEmail(false);
+    setMensagemEnvio("");
+  };
+
   const calcularPJ = async () => {
     const rendaNum = parseFloat(renda);
-    if (isNaN(rendaNum)) {
+    if (Number.isNaN(rendaNum)) {
       setResultado("Por favor, insira um valor válido.");
       return;
     }
@@ -55,35 +131,10 @@ export default function CalculoPJ() {
         custos: 0
       });
 
-      const { impostoPJ } = response.data.calculo;
-
-      let simples = 0;
-      let aliquota = "";
-
-      if (profissao === "advogado") {
-        simples = rendaNum * 0.045;
-        aliquota = "4,5%";
-      } else {
-        simples = rendaNum * 0.06;
-        aliquota = "6%";
-      }
-
-      const salario28 = rendaNum * 0.28;
-      const salarioMin = 1621;
-      const salarioBase = salario28 < salarioMin ? salarioMin : salario28;
-      const inss = salarioBase * 0.11;
-
-      setResultado({
-        simples,
-        aliquota,
-        salarioBase,
-        inss,
-        total: impostoPJ,
-      });
-
-      setMostrarEmail(false);
-      setMensagemEnvio("");
-
+      setResultado(
+        calcularImpostos(rendaNum, profissao, response.data.calculo.impostoPJ)
+      );
+      resetarEnvioEmail();
     } catch (error) {
       console.error("Erro ao salvar cálculo PJ:", error);
       const msg = error.response?.data?.error || "Erro ao processar cálculo no servidor.";
@@ -113,9 +164,9 @@ export default function CalculoPJ() {
             <div className={`transition-all duration-[700ms] ease-out delay-[500ms] ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
               <label className="block mb-1 text-sm font-medium text-naf-blue">Profissão</label>
               <select value={profissao} onChange={(e) => setProfissao(e.target.value)} className="w-full border border-naf-gray px-4 py-2 rounded-xl focus:ring-2 focus:ring-naf-red outline-none transition delay-[80ms] duration-[400ms] ease-in-out">
-                <option value="psicologo">Psicólogo(a)</option>
-                <option value="arquiteto">Arquiteto(a)</option>
-                <option value="advogado">Advogado(a)</option>
+                {PROFISSOES.map(({ value, label }) => (
+                  <option key={value} value={value}>{label}</option>
+                ))}
               </select>
             </div>
 
@@ -133,7 +184,7 @@ export default function CalculoPJ() {
                   </div>
                 )}
               </div>
-              <input type="number" value={renda} onChange={handleRendaChange} max="15000" placeholder="Ex: 3000" className="w-full border border-naf-gray px-4 py-2 rounded-xl focus:ring-2 focus:ring-naf-red outline-none transition delay-[80ms] duration-[400ms] ease-in-out hover:shadow-sm" />
+              <input type="number" value={renda} onChange={handleRendaChange} max={MAX_FATURAMENTO} placeholder="Ex: 3000" className="w-full border border-naf-gray px-4 py-2 rounded-xl focus:ring-2 focus:ring-naf-red outline-none transition delay-[80ms] duration-[400ms] ease-in-out hover:shadow-sm" />
               {erro && <p className="text-naf-red text-sm mt-1 font-medium">{erro}</p>}
             </div>
 
@@ -143,41 +194,16 @@ export default function CalculoPJ() {
               </button>
             </div>
 
-            {resultado && (
-              <div className={`bg-gray-50 border border-naf-gray/20 rounded-xl shadow-inner mt-4 p-5 transition-all duration-[700ms] ease-out delay-[200ms] ${isVisible ? "opacity-100 translate-y-0" : "opacity-0"}`}>
-                {typeof resultado === "string" ? (
-                  <p className="text-naf-red font-medium">{resultado}</p>
-                ) : (
-                  <>
-                    <div className="space-y-2 text-sm text-naf-blue">
-                      <p><strong>Simples Nacional ({resultado.aliquota}):</strong> R$ {resultado.simples.toFixed(2)}</p>
-                      <p><strong>Pró-labore base:</strong> R$ {resultado.salarioBase.toFixed(2)}</p>
-                      <p><strong>INSS (11%):</strong> R$ {resultado.inss.toFixed(2)}</p>
-                    </div>
-                    <p className="text-lg font-bold text-naf-red mt-3 pt-3 border-t border-naf-gray/30">
-                      Total a pagar: R$ {resultado.total.toFixed(2)}
-                    </p>
-
-                    <div className="mt-5 pt-3 border-t border-naf-gray/30">
-                      <p className="text-sm font-medium text-naf-blue mb-3 text-center">Deseja receber os resultados por e-mail?</p>
-                      <div className="flex gap-3 justify-center">
-                        <button onClick={() => setMostrarEmail(true)} className="bg-naf-blue text-white px-5 py-2 rounded-xl hover:bg-[#0c1825] transition shadow-sm text-sm font-medium">Sim</button>
-                        <button onClick={() => setMostrarEmail(false)} className="bg-white border border-naf-gray text-naf-blue px-5 py-2 rounded-xl hover:bg-gray-100 transition shadow-sm text-sm font-medium">Não</button>
-                      </div>
-
-                      {mostrarEmail && (
-                        <div className="mt-4 space-y-3">
-                          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Digite seu e-mail" className="w-full border border-naf-gray px-4 py-2 rounded-xl focus:ring-2 focus:ring-naf-red outline-none text-sm" />
-                          <button onClick={enviarEmail} className="w-full bg-naf-red text-white py-2 rounded-xl hover:bg-[#a62b18] transition text-sm font-bold shadow-sm">Enviar resultados</button>
-                        </div>
-                      )}
-
-                      {mensagemEnvio && <p className="text-green-600 mt-3 text-sm font-bold text-center">{mensagemEnvio}</p>}
-                    </div>
-                  </>
-                )}
-              </div>
-            )}
+            <ResultadoCalculo
+              resultado={resultado}
+              mostrarEmail={mostrarEmail}
+              setMostrarEmail={setMostrarEmail}
+              email={email}
+              setEmail={setEmail}
+              mensagemEnvio={mensagemEnvio}
+              onEnviarEmail={enviarEmail}
+              isVisible={isVisible}
+            />
           </div>
         </div>
       </main>
