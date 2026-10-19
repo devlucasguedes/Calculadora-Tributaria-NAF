@@ -11,6 +11,7 @@ import Historico from "./Pages/Historico";
 
 function App() {
   return (
+   <div className="min-h-screen min-w-[320px] overflow-x-hidden bg-gray-50 text-gray-900 font-sans"> {/* Classes que definem o estilo da aplicação, como altura mínima, largura mínima, cores de fundo e texto, e a fonte utilizada. */}
     <BrowserRouter>
       <Routes>
         {/* Rotas Públicas */}
@@ -27,6 +28,7 @@ function App() {
         <Route path="/historico" element={<Historico />} />
       </Routes>
     </BrowserRouter>
+  </div>
   );
 }
 
