@@ -6,3 +6,12 @@
   --color-naf-gray: #B2B2B2;
   --color-naf-light: #EFEFEF;
 }
+
+@layer base {
+  body {
+    @apply min-h-screen w-full max-w-[100vw] overflow-x-hidden bg-[#EFEFEF] text-[#132436] font-sans;
+  }
+  #root {
+    @apply flex flex-col min-h-screen;
+  }
+}

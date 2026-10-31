@@ -55,13 +55,13 @@ export default function Landing() {
           <div className="flex gap-4">
             <button 
               onClick={() => navigate("/login")}
-              className="text-white font-medium hover:text-naf-red transition cursor-pointer"
+              className="text-white font-medium hover:text-naf-red focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-naf-blue transition cursor-pointer px-2 py-1 rounded"
             >
               Entrar
             </button>
             <button 
               onClick={() => navigate("/cadastro")}
-              className="bg-naf-red text-white px-5 py-2 rounded-lg font-bold hover:bg-[#a62b18] transition shadow-md hover:scale-105 cursor-pointer"
+              className="bg-naf-red text-white px-5 py-2 rounded-lg font-bold hover:bg-[#a62b18] focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-naf-blue transition shadow-md hover:scale-105 cursor-pointer"
             >
               Criar Conta
             </button>
@@ -69,26 +69,26 @@ export default function Landing() {
         </div>
       </nav>
 
-      <main className="flex-grow">
-        <section className="w-full py-20 px-6 text-center bg-gradient-to-b from-naf-blue to-[#0c1825] text-white">
+      <main className="grow">
+        <section className="w-full py-20 px-6 text-center bg-linear-to-b from-naf-blue to-[#0c1825] text-white">
           <div className="max-w-4xl mx-auto">
             <h1 className="text-4xl md:text-5xl font-extrabold mb-6 leading-tight">
               Pare de perder dinheiro para o Leão. <br />
               <span className="text-naf-red">Simule seus impostos em segundos.</span>
             </h1>
-            <p className="text-lg md:text-xl text-naf-gray mb-10 max-w-2xl mx-auto">
+            <p className="text-lg md:text-xl text-gray-300 mb-10 max-w-2xl mx-auto font-medium">
               Nossa calculadora inteligente ajuda profissionais autônomos a compararem os encargos entre Pessoa Física e Pessoa Jurídica para tomar a melhor decisão financeira.
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
               <button 
                 onClick={() => navigate("/login")}
-                className="bg-naf-red text-white text-lg font-bold px-8 py-4 rounded-xl hover:bg-[#a62b18] transition shadow-lg hover:scale-105 cursor-pointer"
+                className="bg-naf-red text-white text-lg font-bold px-8 py-4 rounded-xl hover:bg-[#a62b18] focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-[#0c1825] transition shadow-lg hover:scale-105 cursor-pointer"
               >
                 Acessar Calculadora
               </button>
               <button 
                 onClick={() => document.getElementById('faq-section').scrollIntoView({ behavior: 'smooth' })}
-                className="bg-transparent border-2 border-naf-gray text-white text-lg font-bold px-8 py-4 rounded-xl hover:border-white transition cursor-pointer"
+                className="bg-transparent border-2 border-gray-300 text-white text-lg font-bold px-8 py-4 rounded-xl hover:border-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-[#0c1825] transition cursor-pointer"
               >
                 Como funciona?
               </button>
@@ -100,7 +100,7 @@ export default function Landing() {
         <section id="faq-section" className="w-full py-20 px-6 bg-naf-light">
           <div className="max-w-3xl mx-auto">
             <h2 className="text-3xl font-bold text-center text-naf-blue mb-2">Dúvidas Frequentes (FAQ)</h2>
-            <p className="text-center text-naf-gray mb-10 font-medium">Entenda como a nossa ferramenta pode ajudar na sua rotina</p>
+            <p className="text-center text-gray-700 mb-10 font-medium">Entenda como a nossa ferramenta pode ajudar na sua rotina</p>
 
             <div className="space-y-4">
               {faqs.map((faq, index) => (
@@ -110,11 +110,14 @@ export default function Landing() {
                 >
                   <button
                     onClick={() => toggleFaq(index)}
-                    className="w-full flex justify-between items-center p-6 text-left focus:outline-none hover:bg-gray-50 transition cursor-pointer"
+                    aria-expanded={faqAberto === index}
+                    aria-controls={`faq-answer-${index}`}
+                    className="w-full flex justify-between items-center p-6 text-left focus:outline-none focus:ring-2 focus:ring-naf-red hover:bg-gray-50 transition cursor-pointer"
                   >
                     <span className="font-bold text-naf-blue text-lg">{faq.pergunta}</span>
                     <svg 
                       className={`w-6 h-6 text-naf-red transform transition-transform duration-300 ${faqAberto === index ? 'rotate-180' : ''}`} 
+                      aria-hidden="true"
                       fill="none" viewBox="0 0 24 24" stroke="currentColor"
                     >
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -122,6 +125,7 @@ export default function Landing() {
                   </button>
                   
                   <div 
+                    id={`faq-answer-${index}`}
                     className={`px-6 text-gray-700 text-sm md:text-base leading-relaxed overflow-hidden transition-all duration-300 ease-in-out ${faqAberto === index ? 'max-h-40 pb-6 opacity-100' : 'max-h-0 opacity-0'}`}
                   >
                     {faq.resposta}
