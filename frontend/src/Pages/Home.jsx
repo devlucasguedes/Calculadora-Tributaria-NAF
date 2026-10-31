@@ -14,6 +14,7 @@ export default function Home() {
     mensagem: "",
   });
   const [enviando, setEnviando] = useState(false);
+  const [statusMessage, setStatusMessage] = useState({ text: "", type: "" });
 
   useEffect(() => {
     if (!token) {
@@ -39,6 +40,7 @@ export default function Home() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setEnviando(true);
+    setStatusMessage({ text: "", type: "" });
 
     try {
       const response = await fetch('http://localhost:3000/send-email', {
@@ -48,81 +50,81 @@ export default function Home() {
       });
 
       if (response.ok) {
-        alert('Mensagem enviada com sucesso ao NAF!');
+        setStatusMessage({ text: "Mensagem enviada com sucesso ao NAF!", type: "success" }); 
         setFormData({ nome: "", email: "", mensagem: "" });
       } else {
-        alert('Houve um erro ao enviar a mensagem. Tente novamente.');
+        setStatusMessage({ text: "Houve um erro ao enviar a mensagem. Tente novamente.", type: "error" });
       }
     } catch (error) {
       console.error("Erro:", error);
-      alert('Erro de conexão com o servidor. Como o backend da NP3 não está rodando, a simulação visual funcionou!');
+      setStatusMessage({ text: "Erro de conexão com o servidor. Como o backend da NP3 não está rodando, a simulação visual funcionou!", type: "error" });
       setFormData({ nome: "", email: "", mensagem: "" });
     } finally {
       setEnviando(false);
     }
   };
 
-  return (
+return (
     <div className="flex flex-col min-h-screen bg-naf-light">
       <Navbar />
 
-      <main className="flex-grow flex flex-col items-center py-10 px-4 md:px-6">
+      <main className="grow flex flex-col items-center py-10 px-4 md:px-6">
         
         {/* SEÇÃO 1: CABEÇALHO E CARDS DE NAVEGAÇÃO */}
         <section className="w-full max-w-6xl mb-16">
-          <div className={`text-center mb-10 transition-all duration-[700ms] ease-out delay-[200ms] ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}>
+          <div className={`text-center mb-10 transition-all duration-700 ease-out delay-200 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}>
             <h1 className="text-4xl font-bold text-naf-blue mb-3">Painel Tributário</h1>
-            <p className="text-naf-gray font-medium text-lg max-w-2xl mx-auto">
+            <p className="text-gray-700 font-medium text-lg max-w-2xl mx-auto">
               Simule e compare regimes de tributação de forma rápida. Escolha a modalidade abaixo para começar:
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Card PF */}
-            <div className={`bg-white rounded-2xl p-6 shadow-lg border border-naf-gray/20 flex flex-col justify-between transition-all duration-[700ms] ease-out delay-[400ms] hover:shadow-xl hover:-translate-y-2 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
+            <div className={`bg-white rounded-2xl p-6 shadow-lg border border-naf-gray/20 flex flex-col justify-between transition-all duration-700 ease-out delay-400 hover:shadow-xl hover:-translate-y-2 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
               <div>
-                <div className="w-12 h-12 bg-naf-blue/10 rounded-full flex items-center justify-center mb-4">
+                <div className="w-12 h-12 bg-naf-blue/10 rounded-full flex items-center justify-center mb-4" aria-hidden="true">
                   <svg className="w-6 h-6 text-naf-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                 </div>
                 <h3 className="text-xl font-bold text-naf-blue mb-2">Pessoa Física (PF)</h3>
-                <p className="text-sm text-naf-gray mb-6">
+                <p className="text-sm text-gray-700 mb-6">
                   Cálculo baseado na tabela do IRPF mensal. Permite abater despesas dedutíveis (Livro Caixa) da sua base de cálculo.
                 </p>
               </div>
-              <button onClick={() => handleNavigate("/calculo-pf")} className="w-full py-3 bg-naf-blue text-white font-medium rounded-xl hover:bg-[#0c1825] transition-colors cursor-pointer">
+              <button onClick={() => handleNavigate("/calculo-pf")} className="w-full py-3 bg-naf-blue text-white font-medium rounded-xl hover:bg-[#0c1825] focus:outline-none focus:ring-2 focus:ring-naf-red focus:ring-offset-2 transition-colors cursor-pointer">
                 Simular PF
               </button>
             </div>
 
             {/* Card PJ */}
-            <div className={`bg-white rounded-2xl p-6 shadow-lg border border-naf-gray/20 flex flex-col justify-between transition-all duration-[700ms] ease-out delay-[600ms] hover:shadow-xl hover:-translate-y-2 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
+            <div className={`bg-white rounded-2xl p-6 shadow-lg border border-naf-gray/20 flex flex-col justify-between transition-all duration-700 ease-out delay-600 hover:shadow-xl hover:-translate-y-2 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
               <div>
-                <div className="w-12 h-12 bg-naf-blue/10 rounded-full flex items-center justify-center mb-4">
+                <div className="w-12 h-12 bg-naf-blue/10 rounded-full flex items-center justify-center mb-4" aria-hidden="true">
                   <svg className="w-6 h-6 text-naf-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
                 </div>
                 <h3 className="text-xl font-bold text-naf-blue mb-2">Pessoa Jurídica (PJ)</h3>
-                <p className="text-sm text-naf-gray mb-6">
+                <p className="text-sm text-gray-700 mb-6">
                   Cálculo focado no Simples Nacional e Contribuição Previdenciária (INSS) sobre o pró-labore da sua categoria.
                 </p>
               </div>
-              <button onClick={() => handleNavigate("/calculo-pj")} className="w-full py-3 bg-naf-blue text-white font-medium rounded-xl hover:bg-[#0c1825] transition-colors cursor-pointer">
+              <button onClick={() => handleNavigate("/calculo-pj")} className="w-full py-3 bg-naf-blue text-white font-medium rounded-xl hover:bg-[#0c1825] focus:outline-none focus:ring-2 focus:ring-naf-red focus:ring-offset-2 transition-colors cursor-pointer">
                 Simular PJ
               </button>
             </div>
 
             {/* Card Comparativo */}
-            <div className={`bg-white rounded-2xl p-6 shadow-lg border-2 border-naf-red flex flex-col justify-between transition-all duration-[700ms] ease-out delay-[800ms] hover:shadow-xl hover:-translate-y-2 relative overflow-hidden ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
+            <div className={`bg-white rounded-2xl p-6 shadow-lg border-2 border-naf-red flex flex-col justify-between transition-all duration-700 ease-out delay-800 hover:shadow-xl hover:-translate-y-2 relative overflow-hidden ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
               <div className="absolute top-0 right-0 bg-naf-red text-white text-xs font-bold px-3 py-1 rounded-bl-lg">Recomendado</div>
               <div>
-                <div className="w-12 h-12 bg-naf-red/10 rounded-full flex items-center justify-center mb-4">
-                  <svg className="w-6 h-6 text-naf-red" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                <div className="w-12 h-12 bg-naf-red/10 rounded-full flex items-center justify-center mb-4" aria-hidden="true">
+                  <svg className="w-6 h-6 text-naf-red" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a２ ２ ０ ０１２ ２v14a２ ２ ０ ０１－２ ２h－２a２ ２ ０ ０１－２ －２z"></path></svg>
                 </div>
                 <h3 className="text-xl font-bold text-naf-blue mb-2">Comparativo Completo</h3>
-                <p className="text-sm text-naf-gray mb-6">
+                <p className="text-sm text-gray-700 mb-6">
                   Analise PF e PJ lado a lado. Descubra a opção mais vantajosa para sua renda e gere um relatório em PDF.
                 </p>
               </div>
-              <button onClick={() => handleNavigate("/comparativo")} className="w-full py-3 bg-naf-red text-white font-bold rounded-xl hover:bg-[#a62b18] transition-colors cursor-pointer">
+              <button onClick={() => handleNavigate("/comparativo")} className="w-full py-3 bg-naf-red text-white font-bold rounded-xl hover:bg-[#a62b18] focus:outline-none focus:ring-2 focus:ring-naf-red focus:ring-offset-2 transition-colors cursor-pointer">
                 Gerar Comparativo
               </button>
             </div>
@@ -130,7 +132,7 @@ export default function Home() {
         </section>
 
         {/* SEÇÃO 2: COMO FUNCIONA */}
-        <section className={`w-full max-w-6xl bg-white rounded-3xl shadow-md border border-naf-gray/20 p-8 mb-12 transition-all duration-[700ms] ease-out delay-[1000ms] ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
+        <section className={`w-full max-w-6xl bg-white rounded-3xl shadow-md border border-naf-gray/20 p-8 mb-12 transition-all duration-700 ease-out delay-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
           <h2 className="text-2xl font-bold text-naf-blue mb-6 border-b border-naf-gray/20 pb-4">Entendendo os Cálculos</h2>
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
@@ -183,19 +185,19 @@ export default function Home() {
             <div>
               <h3 className="text-lg font-bold text-naf-red mb-3">Pessoa Jurídica (PJ)</h3>
               <p className="text-sm text-gray-700 mb-4">
-                A tributaçãoPJ é simulada com base no <strong>Simples Nacional</strong>. A alíquota inicial varia conforme a sua categoria profissional, além de englobar a contribuição previdenciária obrigatória (INSS).
+                A tributação PJ é simulada com base no <strong>Simples Nacional</strong>. A alíquota inicial varia conforme a sua categoria profissional, além de englobar a contribuição previdenciária obrigatória (INSS).
               </p>
               <ul className="space-y-3 text-sm text-gray-700 bg-naf-light/50 p-5 rounded-xl border border-naf-gray/20">
                 <li className="flex items-start gap-2">
-                  <svg className="w-5 h-5 text-naf-blue mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                  <svg className="w-5 h-5 text-naf-blue mt-0.5 shrink-0" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                   <span><strong>Psicólogos e Arquitetos (Anexo III):</strong> Iniciam com 6% de imposto sobre o faturamento.</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <svg className="w-5 h-5 text-naf-blue mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                  <svg className="w-5 h-5 text-naf-blue mt-0.5 shrink-0" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                   <span><strong>Advogados (Anexo IV):</strong> Iniciam com 4,5% de imposto sobre o faturamento.</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <svg className="w-5 h-5 text-naf-blue mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                  <svg className="w-5 h-5 text-naf-blue mt-0.5 shrink-0" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                   <span><strong>INSS (Pró-labore):</strong> Calculado em 11% sobre 28% do faturamento (respeitando o mínimo de 1 salário mínimo vigente).</span>
                 </li>
               </ul>
@@ -204,17 +206,18 @@ export default function Home() {
         </section>
 
         {/* SEÇÃO 3: CONTATO NAF */}
-        <section className={`w-full max-w-2xl bg-white rounded-3xl shadow-lg border border-naf-gray/20 p-8 mb-4 transition-all duration-[700ms] ease-out delay-[1200ms] ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
+        <section className={`w-full max-w-2xl bg-white rounded-3xl shadow-lg border border-naf-gray/20 p-8 mb-4 transition-all duration-700 ease-out delay-1200 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
           <div className="text-center mb-6">
             <h2 className="text-2xl font-bold text-naf-blue">Fale com o NAF</h2>
-            <p className="text-sm text-naf-gray mt-1">Sua situação é muito complexa? Envie uma mensagem para nossa equipe.</p>
+            <p className="text-sm text-gray-700 mt-1">Sua situação é muito complexa? Envie uma mensagem para nossa equipe.</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4 text-left">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-naf-blue mb-1">Nome Completo</label>
+                <label htmlFor="nome" className="block text-sm font-medium text-naf-blue mb-1">Nome Completo</label>
                 <input
+                  id="nome"
                   type="text"
                   name="nome"
                   value={formData.nome}
@@ -224,8 +227,9 @@ export default function Home() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-naf-blue mb-1">E-mail</label>
+                <label htmlFor="email" className="block text-sm font-medium text-naf-blue mb-1">E-mail</label>
                 <input
+                  id="email"
                   type="email"
                   name="email"
                   value={formData.email}
@@ -236,8 +240,9 @@ export default function Home() {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-naf-blue mb-1">Sua Mensagem / Dúvida</label>
+              <label htmlFor="mensagem" className="block text-sm font-medium text-naf-blue mb-1">Sua Mensagem / Dúvida</label>
               <textarea
+                id="mensagem"
                 name="mensagem"
                 value={formData.mensagem}
                 onChange={handleChange}
@@ -249,10 +254,17 @@ export default function Home() {
             <button
               type="submit"
               disabled={enviando}
-              className={`cursor-pointer w-full bg-naf-blue text-white py-3 rounded-xl hover:bg-[#0c1825] transition-all duration-[400ms] ease-out text-base font-bold shadow-md ${enviando ? 'opacity-70 cursor-not-allowed' : 'hover:scale-[1.02]'}`}
+              className={`cursor-pointer w-full bg-naf-blue text-white py-3 rounded-xl hover:bg-[#0c1825] focus:outline-none focus:ring-2 focus:ring-naf-red focus:ring-offset-2 transition-all duration-400 ease-out text-base font-bold shadow-md ${enviando ? 'opacity-70 cursor-not-allowed' : 'hover:scale-[1.02]'}`}
             >
               {enviando ? "Enviando para o NAF..." : "Enviar Mensagem"}
             </button>
+            
+            {/* Região Aria-Live para anunciar sucesso/erro de formulário */}
+            {statusMessage.text && (
+              <p aria-live="polite" className={`text-sm mt-3 text-center font-semibold ${statusMessage.type === 'error' ? 'text-red-600' : 'text-green-600'}`}>
+                {statusMessage.text}
+              </p>
+            )}
           </form>
         </section>
 
