@@ -44,7 +44,7 @@ function ResultadoCalculo({
   if (!resultado) return null;
 
   return (
-    <div className={`bg-gray-50 border border-naf-gray/20 rounded-xl shadow-inner mt-4 p-5 transition-all duration-[700ms] ease-out delay-[200ms] ${isVisible ? "opacity-100 translate-y-0" : "opacity-0"}`}>
+    <div aria-live="polite" className={`bg-gray-50 border border-naf-gray/20 rounded-xl shadow-inner mt-4 p-5 transition-all duration-700 ease-out delay-200 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0"}`}>
       {typeof resultado === "string" ? (
         <p className="text-naf-red font-medium">{resultado}</p>
       ) : (
@@ -61,18 +61,21 @@ function ResultadoCalculo({
           <div className="mt-5 pt-3 border-t border-naf-gray/30">
             <p className="text-sm font-medium text-naf-blue mb-3 text-center">Deseja receber os resultados por e-mail?</p>
             <div className="flex gap-3 justify-center">
-              <button onClick={() => setMostrarEmail(true)} className="bg-naf-blue text-white px-5 py-2 rounded-xl hover:bg-[#0c1825] transition shadow-sm text-sm font-medium">Sim</button>
-              <button onClick={() => setMostrarEmail(false)} className="bg-white border border-naf-gray text-naf-blue px-5 py-2 rounded-xl hover:bg-gray-100 transition shadow-sm text-sm font-medium">Não</button>
+              <button onClick={() => setMostrarEmail(true)} className="bg-naf-blue text-white px-5 py-2 rounded-xl hover:bg-[#0c1825] focus:outline-none focus:ring-2 focus:ring-naf-red focus:ring-offset-2 transition shadow-sm text-sm font-medium cursor-pointer">Sim</button>
+              <button onClick={() => setMostrarEmail(false)} className="bg-white border border-naf-gray text-naf-blue px-5 py-2 rounded-xl hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-naf-red focus:ring-offset-2 transition shadow-sm text-sm font-medium cursor-pointer">Não</button>
             </div>
 
             {mostrarEmail && (
               <div className="mt-4 space-y-3">
-                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Digite seu e-mail" className="w-full border border-naf-gray px-4 py-2 rounded-xl focus:ring-2 focus:ring-naf-red outline-none text-sm" />
-                <button onClick={onEnviarEmail} className="w-full bg-naf-red text-white py-2 rounded-xl hover:bg-[#a62b18] transition text-sm font-bold shadow-sm">Enviar resultados</button>
+                <label htmlFor="emailResult" className="sr-only">Digite seu e-mail</label>
+                <input id="emailResult" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Digite seu e-mail" className="w-full border border-naf-gray px-4 py-2 rounded-xl focus:ring-2 focus:ring-naf-red focus:border-transparent outline-none text-sm" />
+                <button onClick={onEnviarEmail} className="w-full bg-naf-red text-white py-2 rounded-xl hover:bg-[#a62b18] focus:outline-none focus:ring-2 focus:ring-naf-red focus:ring-offset-2 transition text-sm font-bold shadow-sm cursor-pointer">Enviar resultados</button>
               </div>
             )}
 
-            {mensagemEnvio && <p className="text-green-600 mt-3 text-sm font-bold text-center">{mensagemEnvio}</p>}
+            <div aria-live="polite">
+              {mensagemEnvio && <p className="text-green-600 mt-3 text-sm font-bold text-center">{mensagemEnvio}</p>}
+            </div>
           </div>
         </>
       )}
@@ -97,8 +100,6 @@ export default function CalculoPJ() {
   const [resultadoFatorR, setResultadoFatorR] = useState(null);
   const [erroFatorR, setErroFatorR] = useState("");
 
-  // O novo fluxo é usado somente por médico e dentista.
-  // As profissões anteriores mantêm o cálculo existente.
   const usaFatorR = profissao === "medico" || profissao === "dentista";
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
@@ -114,7 +115,6 @@ export default function CalculoPJ() {
     return () => clearTimeout(timer);
   }, []);
 
-  // Não deixa resultados de uma simulação aparecerem em outra.
   useEffect(() => {
     setResultado(null);
     setResultadoFatorR(null);
@@ -173,7 +173,6 @@ export default function CalculoPJ() {
   const calcularPJ = async () => {
     if (calculando) return;
 
-    // Esta verificação vem ANTES da validação do cálculo antigo.
     if (usaFatorR) {
       calcularFatorR();
       return;
@@ -200,7 +199,6 @@ export default function CalculoPJ() {
     setMensagemEnvio("");
 
     try {
-      // Mantém a integração existente para as profissões anteriores.
       const response = await api.post("/calculos", {
         tipoProfissao: profissao,
         faturamento: rendaNum,
@@ -217,14 +215,8 @@ export default function CalculoPJ() {
       resetarEnvioEmail();
     } catch (error) {
       console.error("Erro ao salvar cálculo PJ:", error);
-
-      const msg =
-        error.response?.data?.error ||
-        "Erro ao processar cálculo no servidor.";
-
-      setResultado(
-        typeof msg === "string" ? msg : "Erro ao processar cálculo no servidor."
-      );
+      const msg = error.response?.data?.error || "Erro ao processar cálculo no servidor.";
+      setResultado(typeof msg === "string" ? msg : "Erro ao processar cálculo no servidor.");
     } finally {
       setCalculando(false);
     }
@@ -235,8 +227,6 @@ export default function CalculoPJ() {
       setMensagemEnvio("Por favor, insira um e-mail válido.");
       return;
     }
-
-    // O exemplo original não tem integração para enviar e-mails.
     setMensagemEnvio(
       "Demonstração: nenhum e-mail foi enviado. O envio real ainda não está implementado."
     );
@@ -246,19 +236,19 @@ export default function CalculoPJ() {
     <div className="flex flex-col min-h-screen bg-naf-light">
       <Navbar />
 
-      <main className="flex-grow flex flex-col items-center justify-center p-6">
+      <main className="flex-grow flex flex-col items-center justify-center p-4 sm:p-6">
         <div
-          className={`w-full max-w-md bg-white rounded-3xl shadow-xl p-8 border border-naf-gray/20 transition-all duration-[700ms] ease-out delay-[200ms] ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
+          className={`w-full max-w-md bg-white rounded-3xl shadow-xl p-6 sm:p-8 border border-naf-gray/20 transition-all duration-700 ease-out delay-200 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
         >
           <h2
-            className={`text-2xl font-bold text-center mb-6 text-naf-blue transition-all duration-[700ms] ease-out delay-[400ms] ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5"}`}
+            className={`text-2xl font-bold text-center mb-6 text-naf-blue transition-all duration-700 ease-out delay-300 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5"}`}
           >
             Cálculo IR Pessoa Jurídica
           </h2>
 
           <div className="space-y-4">
             <div
-              className={`transition-all duration-[700ms] ease-out delay-[500ms] ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+              className={`transition-all duration-700 ease-out delay-500 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
             >
               <label
                 htmlFor="profissao"
@@ -276,7 +266,7 @@ export default function CalculoPJ() {
                   setHistoricoFatorR(criarHistoricoFatorR());
                   setErro("");
                 }}
-                className="w-full border border-naf-gray px-4 py-2 rounded-xl focus:ring-2 focus:ring-naf-red outline-none transition delay-[80ms] duration-[400ms] ease-in-out disabled:opacity-60"
+                className="w-full border border-naf-gray px-4 py-2 rounded-xl focus:ring-2 focus:ring-naf-red focus:border-transparent outline-none transition delay-75 duration-300 ease-in-out disabled:opacity-60"
               >
                 {PROFISSOES.map(({ value, label }) => (
                   <option key={value} value={value}>{label}</option>
@@ -285,7 +275,7 @@ export default function CalculoPJ() {
             </div>
 
             <div
-              className={`transition-all duration-[700ms] ease-out delay-[600ms] ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+              className={`transition-all duration-700 ease-out delay-500 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
             >
               <div className="relative flex items-center gap-1 mb-1">
                 <label
@@ -298,7 +288,8 @@ export default function CalculoPJ() {
                 <button
                   type="button"
                   aria-label="Explicação sobre faturamento mensal"
-                  className="text-naf-gray hover:text-naf-blue focus:outline-none"
+                  aria-expanded={showTooltipRenda}
+                  className="text-naf-gray hover:text-naf-blue focus:outline-none focus:ring-2 focus:ring-naf-red rounded-full"
                   onMouseEnter={() => setShowTooltipRenda(true)}
                   onMouseLeave={() => setShowTooltipRenda(false)}
                   onFocus={() => setShowTooltipRenda(true)}
@@ -321,7 +312,7 @@ export default function CalculoPJ() {
                 {showTooltipRenda && (
                   <div
                     role="tooltip"
-                    className="absolute z-10 w-64 max-w-full p-3 text-sm text-white bg-naf-blue rounded-xl shadow-lg top-full left-0 mt-2 border border-naf-gray/30"
+                    className="absolute z-20 w-64 max-w-full p-3 text-sm text-white bg-gray-800 rounded-xl shadow-xl bottom-full left-0 mb-2 border border-gray-700"
                   >
                     É o valor total bruto recebido no mês pelas notas fiscais
                     emitidas no seu CNPJ.
@@ -339,19 +330,21 @@ export default function CalculoPJ() {
                 disabled={calculando}
                 onChange={handleRendaChange}
                 placeholder="Ex: 3000"
-                className="w-full border border-naf-gray px-4 py-2 rounded-xl focus:ring-2 focus:ring-naf-red outline-none transition delay-[80ms] duration-[400ms] ease-in-out hover:shadow-sm disabled:opacity-60"
+                className="w-full border border-naf-gray px-4 py-2 rounded-xl focus:ring-2 focus:ring-naf-red focus:border-transparent outline-none transition delay-75 duration-300 ease-in-out hover:shadow-sm disabled:opacity-60"
               />
 
-              {erro && (
-                <p role="alert" className="text-naf-red text-sm mt-1 font-medium">
-                  {erro}
-                </p>
-              )}
+              <div aria-live="polite" className="h-4">
+                {erro && (
+                  <p className="text-naf-red text-xs mt-1 font-medium">
+                    {erro}
+                  </p>
+                )}
+              </div>
             </div>
 
             {usaFatorR && (
               <div
-                className={`transition-all duration-[700ms] ease-out delay-[700ms] ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5"}`}
+                className={`transition-all duration-700 ease-out delay-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5"}`}
               >
                 <h3 className="text-sm font-bold text-naf-blue">
                   Histórico dos 12 meses anteriores
@@ -395,12 +388,12 @@ export default function CalculoPJ() {
                             inputMode="decimal"
                             value={mes.receita}
                             onChange={(e) => atualizarHistoricoFatorR(indice, "receita", e.target.value)}
-                            className="w-full min-w-0 border border-naf-gray px-3 py-2 rounded-lg focus:ring-2 focus:ring-naf-red outline-none"
+                            className="w-full min-w-0 border border-naf-gray px-3 py-2 rounded-lg focus:ring-2 focus:ring-naf-red focus:border-transparent outline-none"
                           />
                         </div>
                         <div>
                           <label htmlFor={`folhaHistorico-${indice}`} className="block text-xs text-naf-blue mb-1">
-                            Pró-labore / folha mensal (R$)
+                            Pró-labore / folha (R$)
                           </label>
                           <input
                             id={`folhaHistorico-${indice}`}
@@ -410,7 +403,7 @@ export default function CalculoPJ() {
                             inputMode="decimal"
                             value={mes.folha}
                             onChange={(e) => atualizarHistoricoFatorR(indice, "folha", e.target.value)}
-                            className="w-full min-w-0 border border-naf-gray px-3 py-2 rounded-lg focus:ring-2 focus:ring-naf-red outline-none"
+                            className="w-full min-w-0 border border-naf-gray px-3 py-2 rounded-lg focus:ring-2 focus:ring-naf-red focus:border-transparent outline-none"
                           />
                         </div>
                       </div>
@@ -418,22 +411,24 @@ export default function CalculoPJ() {
                   ))}
                 </div>
 
-                {erroFatorR && (
-                  <p role="alert" className="text-naf-red text-sm mt-2 font-medium">
-                    {erroFatorR}
-                  </p>
-                )}
+                <div aria-live="polite">
+                  {erroFatorR && (
+                    <p className="text-naf-red text-sm mt-2 font-medium">
+                      {erroFatorR}
+                    </p>
+                  )}
+                </div>
               </div>
             )}
 
             <div
-              className={`transition-all duration-[700ms] ease-out delay-[800ms] ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+              className={`transition-all duration-700 ease-out delay-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
             >
               <button
                 type="button"
                 onClick={calcularPJ}
                 disabled={calculando}
-                className="w-full bg-naf-blue text-white font-bold py-3 rounded-xl hover:bg-[#0c1825] hover:scale-105 transition-all duration-[400ms] ease-out shadow-md disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
+                className="w-full bg-naf-blue text-white font-bold py-3 rounded-xl hover:bg-[#0c1825] focus:outline-none focus:ring-2 focus:ring-naf-red focus:ring-offset-2 hover:scale-105 transition-all duration-300 ease-out shadow-md disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100 cursor-pointer"
               >
                 {calculando ? "Calculando..." : "Calcular"}
               </button>
@@ -451,75 +446,77 @@ export default function CalculoPJ() {
                 isVisible={isVisible}
               />
             )}
-            {usaFatorR && resultadoFatorR && (
-              <div
-                role="status"
-                className={`bg-gray-50 border border-naf-gray/20 rounded-xl shadow-inner mt-4 p-5 transition-all duration-[400ms] ease-out ${isVisible ? "opacity-100" : "opacity-0"}`}
-              >
-                <div className="space-y-2 text-sm text-naf-blue">
-                  <p>
-                    <strong>Receita dos 12 meses anteriores: </strong>
-                    {formatarMoedaFatorR(resultadoFatorR.receita12Meses)}
-                  </p>
-                  <p>
-                    <strong>Folha dos 12 meses anteriores: </strong>
-                    {formatarMoedaFatorR(resultadoFatorR.folha12Meses)}
-                  </p>
-                  <p>
-                    <strong>Fator R obtido: </strong>
-                    {formatarPercentualFatorR(resultadoFatorR.fatorR)}
-                  </p>
-                  <p>
-                    <strong>Anexo aplicado: </strong>
-                    Anexo {resultadoFatorR.anexo}
-                  </p>
-                  <p>
-                    <strong>Faixa do anexo: </strong>
-                    {resultadoFatorR.faixa}ª faixa
-                  </p>
-                  <p>
-                    <strong>Alíquota nominal: </strong>
-                    {formatarPercentualFatorR(resultadoFatorR.aliquotaNominal)}
-                  </p>
-                  <p>
-                    <strong>Parcela a deduzir: </strong>
-                    {formatarMoedaFatorR(resultadoFatorR.parcelaDeduzir)}
-                  </p>
-                  <p>
-                    <strong>Alíquota efetiva do Simples Nacional: </strong>
-                    {formatarPercentualFatorR(resultadoFatorR.aliquotaEfetiva)}
-                  </p>
-                  <p>
-                    {resultadoFatorR.anexo === "III"
-                      ? "Fator R igual ou superior a 28%: aplicação do Anexo III."
-                      : "Fator R inferior a 28%: aplicação do Anexo V."}
-                  </p>
-
-                  {resultadoFatorR.folhaZerada && (
-                    <p className="text-xs">
-                      Com folha acumulada zero e receita acumulada positiva, aplica-se o Fator R
-                      de 1% previsto na regulamentação, embora a divisão
-                      direta resulte em zero.
+            
+            <div aria-live="polite">
+              {usaFatorR && resultadoFatorR && (
+                <div
+                  className={`bg-gray-50 border border-naf-gray/20 rounded-xl shadow-inner mt-4 p-5 transition-all duration-500 ease-out ${isVisible ? "opacity-100" : "opacity-0"}`}
+                >
+                  <div className="space-y-2 text-sm text-naf-blue">
+                    <p>
+                      <strong>Receita dos 12 meses anteriores: </strong>
+                      {formatarMoedaFatorR(resultadoFatorR.receita12Meses)}
                     </p>
-                  )}
+                    <p>
+                      <strong>Folha dos 12 meses anteriores: </strong>
+                      {formatarMoedaFatorR(resultadoFatorR.folha12Meses)}
+                    </p>
+                    <p>
+                      <strong>Fator R obtido: </strong>
+                      {formatarPercentualFatorR(resultadoFatorR.fatorR)}
+                    </p>
+                    <p>
+                      <strong>Anexo aplicado: </strong>
+                      Anexo {resultadoFatorR.anexo}
+                    </p>
+                    <p>
+                      <strong>Faixa do anexo: </strong>
+                      {resultadoFatorR.faixa}ª faixa
+                    </p>
+                    <p>
+                      <strong>Alíquota nominal: </strong>
+                      {formatarPercentualFatorR(resultadoFatorR.aliquotaNominal)}
+                    </p>
+                    <p>
+                      <strong>Parcela a deduzir: </strong>
+                      {formatarMoedaFatorR(resultadoFatorR.parcelaDeduzir)}
+                    </p>
+                    <p>
+                      <strong>Alíquota efetiva do Simples Nacional: </strong>
+                      {formatarPercentualFatorR(resultadoFatorR.aliquotaEfetiva)}
+                    </p>
+                    <p>
+                      {resultadoFatorR.anexo === "III"
+                        ? "Fator R igual ou superior a 28%: aplicação do Anexo III."
+                        : "Fator R inferior a 28%: aplicação do Anexo V."}
+                    </p>
+
+                    {resultadoFatorR.folhaZerada && (
+                      <p className="text-xs">
+                        Com folha acumulada zero e receita acumulada positiva, aplica-se o Fator R
+                        de 1% previsto na regulamentação, embora a divisão
+                        direta resulte em zero.
+                      </p>
+                    )}
+                  </div>
+
+                  <p className="text-lg font-bold text-naf-red mt-3 pt-3 border-t border-naf-gray/30">
+                    Simples Nacional estimado: {formatarMoedaFatorR(resultadoFatorR.simples)}
+                  </p>
+
+                  <p className="text-xs text-naf-blue mt-3">
+                    Este valor não inclui INSS nem eventual IRPF do pró-labore.
+                    A simulação não contempla início de atividade, retenções
+                    ou receitas segregadas.
+                  </p>
+
+                  <p className="text-xs text-naf-blue mt-2">
+                    Cálculo realizado no navegador, sem salvar no histórico
+                    ou enviar por e-mail.
+                  </p>
                 </div>
-
-                <p className="text-lg font-bold text-naf-red mt-3 pt-3 border-t border-naf-gray/30">
-                  Simples Nacional estimado: {formatarMoedaFatorR(resultadoFatorR.simples)}
-                </p>
-
-                <p className="text-xs text-naf-blue mt-3">
-                  Este valor não inclui INSS nem eventual IRPF do pró-labore.
-                  A simulação não contempla início de atividade, retenções
-                  ou receitas segregadas.
-                </p>
-
-                <p className="text-xs text-naf-blue mt-2">
-                  Cálculo realizado no navegador, sem salvar no histórico
-                  ou enviar por e-mail.
-                </p>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
       </main>
