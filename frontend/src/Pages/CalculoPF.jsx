@@ -101,7 +101,7 @@ function CalculoPF() {
   return (
     <div className="flex flex-col min-h-screen bg-naf-light">
       <Navbar />
-      <main className="grow flex flex-col items-center justify-center p-4 sm:p-6">
+      <main className="flex-grow flex flex-col items-center justify-center p-4 sm:p-6">
         <div className={`w-full max-w-md bg-white rounded-3xl shadow-xl p-6 sm:p-8 border border-naf-gray/20 transition-all duration-700 ease-out delay-100 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
           <h2 className={`text-2xl font-bold text-center mb-6 text-naf-blue transition-all duration-700 ease-out delay-300 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5"}`}>
             Cálculo IR Pessoa Física
@@ -135,8 +135,8 @@ function CalculoPF() {
                   </svg>
                 </button>
                 {showTooltipRenda && (
-                  <div role="tooltip" className="absolute z-10 w-64 p-3 text-sm text-white bg-naf-blue rounded-xl shadow-lg -top-2 left-full ml-2 border border-naf-gray/30">
-                    É o valor total que você espera receber por mês com o seu trabalho, antes de qualquer desconto.
+                  <div role="tooltip" className="absolute z-20 w-64 p-3 text-sm text-white bg-gray-800 rounded-xl shadow-xl bottom-full left-0 mb-2 border border-gray-700">
+                    É o valor total que espera receber por mês com o seu trabalho, antes de qualquer desconto.
                   </div>
                 )}
               </div>
@@ -164,8 +164,8 @@ function CalculoPF() {
                   </svg>
                 </button>
                 {showTooltipCustos && (
-                  <div role="tooltip" className="absolute z-10 w-64 p-3 text-sm text-white bg-naf-blue rounded-xl shadow-lg -top-2 left-full ml-2 border border-naf-gray/30">
-                    São os gastos essenciais para o seu trabalho acontecer (ex: aluguel de consultório/escritório, internet, energia). Eles reduzem a base de cálculo do imposto.
+                  <div role="tooltip" className="absolute z-20 w-64 p-3 text-sm text-white bg-gray-800 rounded-xl shadow-xl bottom-full left-0 mb-2 border border-gray-700">
+                    São os gastos essenciais para o seu trabalho acontecer (ex: aluguer de consultório/escritório, internet, energia). Estes reduzem a base de cálculo do imposto.
                   </div>
                 )}
               </div>
@@ -173,7 +173,7 @@ function CalculoPF() {
             </div>
 
             <div className={`transition-all duration-700 ease-out delay-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5"}`}>
-              <button onClick={calcularIRPF} className="w-full bg-naf-blue text-white font-bold py-3 rounded-xl hover:bg-[#0c1825] focus:outline-none focus:ring-2 focus:ring-naf-red focus:ring-offset-2 hover:scale-105 transition-all duration-300 ease-out shadow-md">
+              <button onClick={calcularIRPF} className="w-full bg-naf-blue text-white font-bold py-3 rounded-xl hover:bg-[#0c1825] focus:outline-none focus:ring-2 focus:ring-naf-red focus:ring-offset-2 hover:scale-105 transition-all duration-300 ease-out shadow-md cursor-pointer">
                 Calcular
               </button>
             </div>
@@ -195,17 +195,17 @@ function CalculoPF() {
                       </p>
 
                       <div className="mt-5 pt-3 border-t border-naf-gray/30">
-                        <p className="text-sm font-medium text-naf-blue mb-3 text-center">Deseja enviar essa simulação por e-mail?</p>
+                        <p className="text-sm font-medium text-naf-blue mb-3 text-center">Deseja enviar esta simulação por e-mail?</p>
                         <div className="flex gap-3 justify-center">
-                          <button onClick={() => setMostrarEmail(true)} className="bg-naf-blue text-white px-5 py-2 rounded-xl hover:bg-[#0c1825] focus:outline-none focus:ring-2 focus:ring-naf-red focus:ring-offset-2 transition shadow-sm text-sm font-medium">Sim, enviar</button>
-                          <button onClick={() => setMostrarEmail(false)} className="bg-white border border-naf-gray text-naf-blue px-5 py-2 rounded-xl hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-naf-red focus:ring-offset-2 transition shadow-sm text-sm font-medium">Não, obrigado</button>
+                          <button onClick={() => setMostrarEmail(true)} className="bg-naf-blue text-white px-5 py-2 rounded-xl hover:bg-[#0c1825] focus:outline-none focus:ring-2 focus:ring-naf-red focus:ring-offset-2 transition shadow-sm text-sm font-medium cursor-pointer">Sim, enviar</button>
+                          <button onClick={() => setMostrarEmail(false)} className="bg-white border border-naf-gray text-naf-blue px-5 py-2 rounded-xl hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-naf-red focus:ring-offset-2 transition shadow-sm text-sm font-medium cursor-pointer">Não, obrigado</button>
                         </div>
 
                         {mostrarEmail && (
                           <div className="mt-4 space-y-3">
-                            <label htmlFor="email" className="sr-only">Digite seu e-mail</label>
-                            <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Digite seu e-mail" className="w-full border border-naf-gray px-4 py-2 rounded-xl focus:ring-2 focus:ring-naf-red focus:border-transparent outline-none text-sm" />
-                            <button onClick={enviarEmail} className="w-full bg-naf-red text-white py-2 rounded-xl hover:bg-[#a62b18] focus:outline-none focus:ring-2 focus:ring-naf-red focus:ring-offset-2 transition text-sm font-bold shadow-sm">Enviar resultados</button>
+                            <label htmlFor="email" className="sr-only">Digite o seu e-mail</label>
+                            <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Digite o seu e-mail" className="w-full border border-naf-gray px-4 py-2 rounded-xl focus:ring-2 focus:ring-naf-red focus:border-transparent outline-none text-sm" />
+                            <button onClick={enviarEmail} className="w-full bg-naf-red text-white py-2 rounded-xl hover:bg-[#a62b18] focus:outline-none focus:ring-2 focus:ring-naf-red focus:ring-offset-2 transition text-sm font-bold shadow-sm cursor-pointer">Enviar resultados</button>
                           </div>
                         )}
 
