@@ -26,7 +26,7 @@ export default function Navbar() {
           {/* Logo transformada em button para navegação via teclado (Tab) */}
           <button 
             onClick={() => navigate('/Home')}
-            className="flex-shrink-0 text-xl font-bold text-white tracking-wide hover:text-naf-gray focus:outline-none focus:ring-2 focus:ring-naf-red focus:ring-offset-2 focus:ring-offset-naf-blue rounded transition-colors duration-300"
+            className="shrink-0 text-xl font-bold text-white tracking-wide hover:text-naf-gray focus:outline-none focus:ring-2 focus:ring-naf-red focus:ring-offset-2 focus:ring-offset-naf-blue rounded transition-colors duration-300"
             title="Voltar para a Página Inicial"
           >
             Calculadora Tributária
