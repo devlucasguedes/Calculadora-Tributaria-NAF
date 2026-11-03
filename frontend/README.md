@@ -7,7 +7,7 @@ Esta pasta contém a interface gráfica de usuário (Single Page Application) da
 * **Roteamento:** React Router Dom com gerenciamento de rotas protegidas (bloqueio de acesso sem token).
 * **Estilização:** Tailwind CSS com transições fluidas e efeitos modernos de animação.
 * **Comunicação:** Axios configurado com *interceptors* para injeção automática do Bearer Token JWT no cabeçalho das requisições.
-* **Exportação:** html2pdf.js para captura do DOM e conversão em relatórios fiscais oficiais.
+* **Exportação:** jsPDF para relatórios de estimativa com texto selecionável e gráficos vetoriais.
 
 ## 📄 Fluxos e Telas Conectadas à API
 * **Acesso e Sessão:** Formulários reais e validados de **Login** e **Cadastro**, armazenando o token no `localStorage`.
@@ -27,7 +27,19 @@ Em **Home → Gerar Comparativo**, preencha os dados e clique em **Analisar Vant
 
 O gráfico usa SVG responsivo, sem biblioteca adicional. Os dados vêm do mesmo cálculo do backend que produz o resultado; as regras tributárias existentes foram preservadas. A funcionalidade contempla as profissões já disponíveis no comparativo: psicólogo, arquiteto e advogado. A projeção não inclui honorários contábeis, despesas de abertura/manutenção nem o simulador separado de Fator R de médico e dentista.
 
-Ao alterar profissão, renda ou custos, execute a análise novamente. O gráfico aparece na tela; a exportação de PDF existente mantém seu conteúdo anterior. Frontend e backend devem estar atualizados para receber o campo `pontoEquilibrio` na resposta da API.
+Ao alterar profissão, renda ou custos, execute a análise novamente. Frontend e backend devem estar atualizados para receber o campo `pontoEquilibrio` na resposta da API.
+
+## PDF do comparativo
+
+Após calcular, use **Baixar relatório em PDF**. A exportação inclui:
+
+* Cabeçalho do NAF / Universidade Christus, data e hora de emissão no fuso de Fortaleza (UTC-3) e aviso de estimativa.
+* Profissão, receita e custos da simulação concluída.
+* Gráfico de barras com os tributos mensais de PF e PJ, na mesma escala.
+* Memória de cálculo de IRPF, Simples Nacional e INSS, com base, alíquota, dedução, valor e fórmulas usadas no comparativo.
+* Segunda página com as curvas de ponto de equilíbrio, faixas favoráveis à PJ e hipóteses da projeção, quando os dados estiverem disponíveis.
+
+O PDF usa os valores do resultado, sem recalcular os tributos. O layout A4 é independente da largura da tela; o controle interativo de renda não altera a simulação exportada. A biblioteca de PDF é carregada somente ao solicitar o download. Uma falha na exportação exibe uma mensagem e permite tentar novamente.
 
 ## 🚀 Execução Local (Desenvolvimento Isolado)
 Se preferir rodar ou testar apenas a interface do React de forma isolada sem o Docker Compose da raiz:
