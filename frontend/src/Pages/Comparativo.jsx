@@ -4,6 +4,7 @@ import Footer from "../components/Footer";
 import { useNavigate } from "react-router-dom";
 import html2pdf from "html2pdf.js";
 import api from "../services/api";
+import GraficoPontoEquilibrio from "../components/GraficoPontoEquilibrio";
 
 export default function Comparativo() {
   const [renda, setRenda] = useState("");
@@ -19,6 +20,7 @@ export default function Comparativo() {
   const [email, setEmail] = useState("");
   const [mensagemEnvio, setMensagemEnvio] = useState("");
   const [gerandoPdf, setGerandoPdf] = useState(false);
+  const [calculando, setCalculando] = useState(false);
 
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
@@ -35,6 +37,7 @@ export default function Comparativo() {
   }, []);
 
   const handleRendaChange = (e) => {
+    setResultado(null);
     const valor = parseFloat(e.target.value);
     if (valor > 15000) {
       setErro("O valor máximo permitido é R$ 15.000,00");
@@ -46,14 +49,17 @@ export default function Comparativo() {
   };
 
   const calcularComparativo = async () => {
+    if (calculando) return;
     const rendaNum = parseFloat(renda);
     const custosNum = parseFloat(custos);
 
-    if (isNaN(rendaNum) || isNaN(custosNum)) {
-      setResultado("Por favor, insira valores válidos.");
+    if (!Number.isFinite(rendaNum) || !Number.isFinite(custosNum) || rendaNum < 0 || rendaNum > 15000 || custosNum < 0) {
+      setResultado("Informe renda entre R$ 0 e R$ 15.000,00 e custos não negativos.");
       return;
     }
 
+    setCalculando(true);
+    setResultado(null);
     try {
       const response = await api.post("/calculos", {
         tipoProfissao: profissao,
@@ -82,6 +88,7 @@ export default function Comparativo() {
       const siglaVencedora = melhorOpcao.includes("PJ") ? "PJ" : "PF";
 
       setResultado({
+        pontoEquilibrio: response.data.pontoEquilibrio,
         pf: { base: basePF, faixa: faixaPF, parcelaDedutivel, imposto: impostoPF },
         pj: { simples: rendaNum * (profissao === "advogado" ? 0.045 : 0.06), aliquota: aliquotaPJ, salarioBase, inss, total: impostoPJ },
         maisVantajoso: melhorOpcao,
@@ -96,6 +103,8 @@ export default function Comparativo() {
       console.error("Erro ao salvar comparativo no banco:", error);
       const mensagemErro = error.response?.data?.error || "Erro ao processar o comparativo no servidor.";
       setResultado(mensagemErro);
+    } finally {
+      setCalculando(false);
     }
   };
 
@@ -160,7 +169,8 @@ export default function Comparativo() {
               <select
                 id="profissao"
                 value={profissao}
-                onChange={(e) => setProfissao(e.target.value)}
+                disabled={calculando}
+                onChange={(e) => { setProfissao(e.target.value); setResultado(null); }}
                 className="w-full border border-gray-300 px-4 py-3 rounded-xl focus:ring-2 focus:ring-[#CD371F] focus:border-transparent outline-none transition cursor-pointer"
               >
                 <option value="psicologo">Psicólogo(a)</option>
@@ -191,6 +201,7 @@ export default function Comparativo() {
                 type="number"
                 value={renda}
                 onChange={handleRendaChange}
+                disabled={calculando}
                 max="15000"
                 placeholder="Ex: 5000"
                 className="w-full border border-gray-300 px-4 py-3 rounded-xl focus:ring-2 focus:ring-[#CD371F] focus:border-transparent outline-none transition"
@@ -221,7 +232,8 @@ export default function Comparativo() {
                 id="custos"
                 type="number"
                 value={custos}
-                onChange={(e) => setCustos(e.target.value)}
+                disabled={calculando}
+                onChange={(e) => { setCustos(e.target.value); setResultado(null); }}
                 placeholder="Ex: 800"
                 className="w-full border border-gray-300 px-4 py-3 rounded-xl focus:ring-2 focus:ring-[#CD371F] focus:border-transparent outline-none transition"
               />
@@ -229,8 +241,8 @@ export default function Comparativo() {
           </div>
 
           <div className="px-6 md:px-8 pb-8">
-            <button onClick={calcularComparativo} className="w-full bg-[#CD371F] text-white font-bold py-4 rounded-xl hover:bg-[#a62b18] focus:outline-none focus:ring-2 focus:ring-[#CD371F] focus:ring-offset-2 hover:scale-[1.01] transition-all duration-300 ease-out shadow-md text-lg cursor-pointer">
-              Analisar Vantagem Tributária
+            <button onClick={calcularComparativo} disabled={calculando} className="w-full bg-[#CD371F] text-white font-bold py-4 rounded-xl hover:bg-[#a62b18] focus:outline-none focus:ring-2 focus:ring-[#CD371F] focus:ring-offset-2 hover:scale-[1.01] transition-all duration-300 ease-out shadow-md text-lg cursor-pointer">
+              {calculando ? "Calculando..." : "Analisar Vantagem Tributária"}
             </button>
           </div>
 
@@ -269,6 +281,14 @@ export default function Comparativo() {
                       <div className="mt-5 pt-3 border-t border-[#e5e7eb] flex justify-between items-end"><span className="font-bold text-[#132436]">Custo Mensal:</span><span className="text-2xl font-black text-[#CD371F]">R$ {resultado.pj.total.toFixed(2)}</span></div>
                     </div>
                   </div>
+                </div>
+
+                <div className="px-4 sm:px-6 md:px-8 py-6 border-t border-gray-200 bg-white">
+                  {resultado.pontoEquilibrio ? (
+                    <GraficoPontoEquilibrio dados={resultado.pontoEquilibrio} />
+                  ) : (
+                    <p className="text-sm text-gray-700">Não foi possível exibir o gráfico desta simulação.</p>
+                  )}
                 </div>
 
                 <div className="px-6 md:px-8 pb-8 pt-4 flex flex-col gap-4 border-t border-gray-200">

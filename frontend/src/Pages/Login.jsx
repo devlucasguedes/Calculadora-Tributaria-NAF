@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import api from "../services/api";
 
 export default function Login() {
@@ -8,6 +8,7 @@ export default function Login() {
   const [errors, setErrors] = useState({});
   const [apiError, setApiError] = useState("");
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -73,6 +74,12 @@ export default function Login() {
         >
           Login
         </h2>
+
+        {searchParams.get("session") === "expired" && (
+          <p role="status" className="mb-5 rounded-xl border border-naf-blue/20 bg-naf-light p-3 text-sm text-naf-blue">
+            Sua sessão não é mais válida. Entre novamente para continuar.
+          </p>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-5" noValidate>
           <div
