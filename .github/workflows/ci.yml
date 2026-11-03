@@ -15,6 +15,9 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: 26
+    - name: Test backend calculations
+      working-directory: backend
+      run: npm test
 
   build-frontend:
     runs-on: ubuntu-latest
