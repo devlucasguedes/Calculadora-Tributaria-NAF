@@ -24,3 +24,15 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: 26
+    - name: Install frontend dependencies
+      working-directory: frontend
+      run: npm ci
+    - name: Test frontend calculations
+      working-directory: frontend
+      run: npm test
+    - name: Lint frontend
+      working-directory: frontend
+      run: npm run lint
+    - name: Build frontend
+      working-directory: frontend
+      run: npm run build
