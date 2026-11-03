@@ -3,9 +3,12 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
+import { calcularFatorR as calcularSimplesFatorR } from "../utils/fatorR";
 
 const MAX_FATURAMENTO = 15000;
 const SALARIO_MINIMO = 1621;
+const criarHistoricoFatorR = () =>
+  Array.from({ length: 12 }, () => ({ receita: "", folha: "" }));
 const PROFISSOES = [
   { value: "psicologo", label: "Psicólogo(a)" },
   { value: "arquiteto", label: "Arquiteto(a)" },
@@ -90,7 +93,7 @@ export default function CalculoPJ() {
   const [profissao, setProfissao] = useState("psicologo");
   const [showTooltipRenda, setShowTooltipRenda] = useState(false);
 
-  const [folhaPagamento, setFolhaPagamento] = useState("");
+  const [historicoFatorR, setHistoricoFatorR] = useState(criarHistoricoFatorR);
   const [resultadoFatorR, setResultadoFatorR] = useState(null);
   const [erroFatorR, setErroFatorR] = useState("");
 
@@ -118,7 +121,7 @@ export default function CalculoPJ() {
     setErroFatorR("");
     setMostrarEmail(false);
     setMensagemEnvio("");
-  }, [profissao, renda, folhaPagamento]);
+  }, [profissao, renda, historicoFatorR]);
 
   const handleRendaChange = (e) => {
     const valor = parseFloat(e.target.value);
@@ -146,75 +149,20 @@ export default function CalculoPJ() {
   const calcularFatorR = () => {
     setResultadoFatorR(null);
     setErroFatorR("");
-
-    const rendaTexto = String(renda).trim();
-    const folhaTexto = String(folhaPagamento).trim();
-
-    if (rendaTexto === "" || folhaTexto === "") {
-      setErroFatorR(
-        "Preencha a renda e a folha de pagamento. Informe 0 se não houver folha."
-      );
-      return;
+    try {
+      setResultadoFatorR(calcularSimplesFatorR({
+        faturamentoMensal: renda,
+        historico: historicoFatorR,
+      }));
+    } catch (error) {
+      setErroFatorR(error.message);
     }
+  };
 
-    const formatoValido = /^\d+(\.\d{1,2})?$/;
-
-    if (!formatoValido.test(rendaTexto) || !formatoValido.test(folhaTexto)) {
-      setErroFatorR(
-        "Use valores não negativos, com até duas casas decimais."
-      );
-      return;
-    }
-
-    const rendaNum = Number(rendaTexto);
-    const folhaNum = Number(folhaTexto);
-
-    if (!Number.isFinite(rendaNum) || rendaNum <= 0 || rendaNum > 15000) {
-      setErroFatorR(
-        "A renda deve ser maior que zero e de até R$ 15.000,00."
-      );
-      return;
-    }
-
-    const rendaCentavos = Math.round(rendaNum * 100);
-    const folhaCentavos = Math.round(folhaNum * 100);
-
-    if (
-      !Number.isFinite(folhaNum) ||
-      !Number.isSafeInteger(folhaCentavos * 1200)
-    ) {
-      setErroFatorR("O valor da folha ultrapassa o limite suportado.");
-      return;
-    }
-
-    // Hipótese da simulação: valores mensais constantes por 12 meses.
-    const receita12Centavos = rendaCentavos * 12;
-    const folha12Centavos = folhaCentavos * 12;
-    const razaoFolhaReceita = folha12Centavos / receita12Centavos;
-
-    // Folha zero e receita positiva: Fator R regulamentar de 1%.
-    const fatorR = folhaCentavos === 0 ? 0.01 : razaoFolhaReceita;
-
-    // Compara valores inteiros, sem arredondar o Fator R.
-    const aplicaAnexoIII =
-      folha12Centavos * 100 >= receita12Centavos * 28;
-
-    const anexo = aplicaAnexoIII ? "III" : "V";
-
-    // Primeira faixa: receita mensal de até R$ 15.000,00
-    // projetada para 12 meses, totalizando até R$ 180.000,00.
-    const aliquota = aplicaAnexoIII ? 6 : 15.5;
-    const simples = Math.round((rendaCentavos * aliquota) / 100) / 100;
-
-    setResultadoFatorR({
-      receita12Meses: receita12Centavos / 100,
-      folha12Meses: folha12Centavos / 100,
-      fatorR,
-      anexo,
-      aliquota,
-      simples,
-      folhaZerada: folhaCentavos === 0,
-    });
+  const atualizarHistoricoFatorR = (indice, campo, valor) => {
+    setHistoricoFatorR((historico) => historico.map((mes, posicao) =>
+      posicao === indice ? { ...mes, [campo]: valor } : mes
+    ));
   };
 
   const resetarEnvioEmail = () => {
@@ -325,7 +273,7 @@ export default function CalculoPJ() {
                 disabled={calculando}
                 onChange={(e) => {
                   setProfissao(e.target.value);
-                  setFolhaPagamento("");
+                  setHistoricoFatorR(criarHistoricoFatorR());
                   setErro("");
                 }}
                 className="w-full border border-naf-gray px-4 py-2 rounded-xl focus:ring-2 focus:ring-naf-red outline-none transition delay-[80ms] duration-[400ms] ease-in-out disabled:opacity-60"
@@ -344,7 +292,7 @@ export default function CalculoPJ() {
                   htmlFor="renda"
                   className="text-sm font-medium text-naf-blue"
                 >
-                  Faturamento Mensal (R$)
+                  {usaFatorR ? "Faturamento do mês de apuração (R$)" : "Faturamento Mensal (R$)"}
                 </label>
 
                 <button
@@ -405,38 +353,70 @@ export default function CalculoPJ() {
               <div
                 className={`transition-all duration-[700ms] ease-out delay-[700ms] ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5"}`}
               >
-                <label
-                  htmlFor="folhaPagamento"
-                  className="block mb-1 text-sm font-medium text-naf-blue"
-                >
-                  Despesa mensal com pró-labore / folha de pagamento (R$)
-                </label>
-
-                <input
-                  id="folhaPagamento"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  inputMode="decimal"
-                  value={folhaPagamento}
-                  onChange={(e) => setFolhaPagamento(e.target.value)}
-                  placeholder="Ex: 2800"
-                  aria-describedby="ajudaFolhaPagamento"
-                  aria-invalid={Boolean(erroFatorR)}
-                  className="w-full border border-naf-gray px-4 py-2 rounded-xl focus:ring-2 focus:ring-naf-red outline-none transition delay-[80ms] duration-[400ms] ease-in-out hover:shadow-sm"
-                />
-
+                <h3 className="text-sm font-bold text-naf-blue">
+                  Histórico dos 12 meses anteriores
+                </h3>
+                <p id="ajudaHistoricoFatorR" className="text-xs text-naf-blue mt-2">
+                  Informe os valores reais de cada mês anterior ao mês de
+                  apuração, sem incluir o próprio mês de apuração. O 1º mês
+                  anterior é o imediatamente anterior a ele. O Fator R será
+                  a soma das folhas dividida pela soma das receitas.
+                </p>
                 <p id="ajudaFolhaPagamento" className="text-xs text-naf-blue mt-2">
                   Informe o total elegível da folha, incluindo pró-labore e
                   encargos admitidos, sem distribuição de lucros ou aluguéis.
-                  Digite 0 se não houver folha.
+                  Digite 0 nos meses sem receita ou sem folha. Preencha os
+                  12 meses; esta simulação não contempla início de atividade.
                 </p>
-
-                <p className="text-xs text-naf-blue mt-2">
-                  Simulação com valores mensais constantes: a renda e a folha
-                  serão multiplicadas por 12. Não substitui o histórico real
-                  dos 12 meses anteriores.
+                <p className="text-xs text-naf-blue mt-2 mb-3">
+                  Limite desta simulação: receita acumulada maior que zero e
+                  de até R$ 3.600.000,00 nos 12 meses anteriores.
                 </p>
+                <div className="space-y-3">
+                  {historicoFatorR.map((mes, indice) => (
+                    <fieldset
+                      key={indice}
+                      className="rounded-xl border border-naf-gray/30 p-3"
+                      aria-describedby="ajudaHistoricoFatorR ajudaFolhaPagamento"
+                    >
+                      <legend className="px-1 text-xs font-semibold text-naf-blue">
+                        {indice + 1}º mês anterior
+                      </legend>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                          <label htmlFor={`receitaHistorico-${indice}`} className="block text-xs text-naf-blue mb-1">
+                            Receita bruta (R$)
+                          </label>
+                          <input
+                            id={`receitaHistorico-${indice}`}
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            inputMode="decimal"
+                            value={mes.receita}
+                            onChange={(e) => atualizarHistoricoFatorR(indice, "receita", e.target.value)}
+                            className="w-full min-w-0 border border-naf-gray px-3 py-2 rounded-lg focus:ring-2 focus:ring-naf-red outline-none"
+                          />
+                        </div>
+                        <div>
+                          <label htmlFor={`folhaHistorico-${indice}`} className="block text-xs text-naf-blue mb-1">
+                            Pró-labore / folha mensal (R$)
+                          </label>
+                          <input
+                            id={`folhaHistorico-${indice}`}
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            inputMode="decimal"
+                            value={mes.folha}
+                            onChange={(e) => atualizarHistoricoFatorR(indice, "folha", e.target.value)}
+                            className="w-full min-w-0 border border-naf-gray px-3 py-2 rounded-lg focus:ring-2 focus:ring-naf-red outline-none"
+                          />
+                        </div>
+                      </div>
+                    </fieldset>
+                  ))}
+                </div>
 
                 {erroFatorR && (
                   <p role="alert" className="text-naf-red text-sm mt-2 font-medium">
@@ -478,11 +458,11 @@ export default function CalculoPJ() {
               >
                 <div className="space-y-2 text-sm text-naf-blue">
                   <p>
-                    <strong>Receita em 12 meses (estimada): </strong>
+                    <strong>Receita dos 12 meses anteriores: </strong>
                     {formatarMoedaFatorR(resultadoFatorR.receita12Meses)}
                   </p>
                   <p>
-                    <strong>Folha em 12 meses (estimada): </strong>
+                    <strong>Folha dos 12 meses anteriores: </strong>
                     {formatarMoedaFatorR(resultadoFatorR.folha12Meses)}
                   </p>
                   <p>
@@ -494,8 +474,20 @@ export default function CalculoPJ() {
                     Anexo {resultadoFatorR.anexo}
                   </p>
                   <p>
-                    <strong>Alíquota do Simples Nacional: </strong>
-                    {resultadoFatorR.aliquota.toLocaleString("pt-BR")}%
+                    <strong>Faixa do anexo: </strong>
+                    {resultadoFatorR.faixa}ª faixa
+                  </p>
+                  <p>
+                    <strong>Alíquota nominal: </strong>
+                    {formatarPercentualFatorR(resultadoFatorR.aliquotaNominal)}
+                  </p>
+                  <p>
+                    <strong>Parcela a deduzir: </strong>
+                    {formatarMoedaFatorR(resultadoFatorR.parcelaDeduzir)}
+                  </p>
+                  <p>
+                    <strong>Alíquota efetiva do Simples Nacional: </strong>
+                    {formatarPercentualFatorR(resultadoFatorR.aliquotaEfetiva)}
                   </p>
                   <p>
                     {resultadoFatorR.anexo === "III"
@@ -505,7 +497,7 @@ export default function CalculoPJ() {
 
                   {resultadoFatorR.folhaZerada && (
                     <p className="text-xs">
-                      Com folha zero e receita positiva, aplica-se o Fator R
+                      Com folha acumulada zero e receita acumulada positiva, aplica-se o Fator R
                       de 1% previsto na regulamentação, embora a divisão
                       direta resulte em zero.
                     </p>
