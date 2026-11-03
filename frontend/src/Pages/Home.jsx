@@ -198,7 +198,23 @@ return (
                 </li>
                 <li className="flex items-start gap-2">
                   <svg className="w-5 h-5 text-naf-blue mt-0.5 shrink-0" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                  <span><strong>INSS (Pró-labore):</strong> Calculado em 11% sobre 28% do faturamento (respeitando o mínimo de 1 salário mínimo vigente).</span>
+                  <span><strong>Médicos e dentistas (Fator R):</strong> O sistema soma a receita bruta e a folha elegível dos 12 meses anteriores. Se a folha representar 28% ou mais da receita, aplica o Anexo III; abaixo de 28%, aplica o Anexo V. A receita acumulada (RBT12) determina a faixa e a alíquota efetiva do Simples, aplicada ao faturamento do mês de apuração.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <svg className="w-5 h-5 text-naf-blue mt-0.5 shrink-0" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                  <span><strong>INSS e pró-labore:</strong> Nos cálculos de médicos e dentistas com Fator R, o resultado mostra somente o Simples Nacional; não inclui INSS nem eventual IRPF sobre o pró-labore. Para as demais profissões, o simulador estima o INSS do pró-labore em 11% sobre 28% do faturamento, respeitado o mínimo de um salário mínimo.</span>
+                </li>
+                <li className="text-xs text-gray-600 border-t border-naf-gray/20 pt-3">
+                  Esta simulação do Fator R exige os dados reais dos 12 meses anteriores, não contempla início de atividade, retenções ou receitas segregadas e limita a RBT12 a R$ 3.600.000,00.{" "}
+                  <a
+                    href="https://www.contabilizei.com.br/contabilidade-online/fator-r-simples-nacional/"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-naf-blue underline"
+                  >
+                    Saiba mais sobre o Fator R
+                  </a>
+                  .
                 </li>
               </ul>
             </div>
