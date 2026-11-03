@@ -15,7 +15,10 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: 26
-    - name: Test backend calculations
+    - name: Install backend dependencies
+      working-directory: backend
+      run: npm ci
+    - name: Test backend
       working-directory: backend
       run: npm test
 
@@ -30,7 +33,7 @@ jobs:
     - name: Install frontend dependencies
       working-directory: frontend
       run: npm ci
-    - name: Test frontend calculations
+    - name: Test frontend
       working-directory: frontend
       run: npm test
     - name: Lint frontend

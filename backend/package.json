@@ -5,7 +5,7 @@
   "main": "src/server.js",
   "scripts": {
     "start": "nodemon -L src/server.js",
-    "test": "node --test src/services/*.test.js"
+    "test": "node --test src/services/*.test.js src/middlewares/*.test.js"
   },
   "dependencies": {
     "@prisma/client": "^5.11.0",

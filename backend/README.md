@@ -26,6 +26,11 @@ O modelo mantém as alíquotas e hipóteses atuais do projeto, sem representar u
 Execute `npm test` nesta pasta para verificar valores de regressão, cruzamentos antes/depois da mudança do pró-labore, ausência de vantagem para PJ, igualdade no teto e consistência das faixas.
 
 ## 🚀 Execução Local (Desenvolvimento Isolado)
+
+Se o banco for recriado, o navegador pode manter um token de uma conta que não existe mais. As rotas protegidas verificam a existência do usuário e retornam 401 nesse caso; o frontend limpa a sessão e abre o login com uma mensagem. Cadastre a conta novamente se o banco estiver vazio. Uma falha de conexão com o banco retorna 503 e mantém a sessão para uma nova tentativa.
+
+Os testes de autenticação usam um banco simulado, sem gravar dados reais. Execute `npm ci` e `npm test` para verificar também tokens inválidos, contas inexistentes e indisponibilidade do banco.
+
 Se houver a necessidade de rodar o servidor Express isoladamente fora do Docker local:
 
 ### Passo a Passo
