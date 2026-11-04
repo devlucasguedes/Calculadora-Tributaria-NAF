@@ -21,7 +21,7 @@ export default function Landing() {
     },
     {
       pergunta: "O que é o Fator R que o sistema menciona?",
-      resposta: "No simulador de médicos e dentistas, o Fator R compara a folha elegível com a receita bruta dos 12 meses anteriores. Com resultado igual ou superior a 28%, aplica-se o Anexo III; abaixo disso, o Anexo V. A alíquota efetiva do Simples é calculada pela faixa da receita acumulada e aplicada ao faturamento do mês. O resultado não inclui INSS nem eventual IRPF sobre o pró-labore."
+      resposta: "No simulador de médicos e dentistas, você pode fazer uma previsão com o faturamento e a folha de um mês, supondo esses valores constantes por 12 meses, ou usar o histórico real dos 12 meses anteriores. Somente o faturamento não determina o Fator R. Com resultado igual ou superior a 28%, aplica-se o Anexo III; abaixo disso, o Anexo V. A previsão é hipotética; o enquadramento real depende do histórico. O resultado mostra o Simples Nacional e não inclui INSS nem eventual IRPF sobre o pró-labore."
     },
     {
       pergunta: "A calculadora substitui um contador?",

@@ -81,3 +81,29 @@ export function calcularFatorR({ faturamentoMensal, historico }) {
     folhaZerada,
   };
 }
+
+/**
+ * Cenário hipotético: repete receita e folha mensais por 12 meses.
+ * Não substitui o histórico real nem as regras de início de atividade.
+ */
+export function preverFatorR({ faturamentoMensal, folhaMensal }) {
+  const rendaCentavos = lerCentavos(faturamentoMensal, "Faturamento mensal previsto");
+  if (rendaCentavos <= 0 || rendaCentavos > 1500000) {
+    throw new Error("O faturamento mensal previsto deve ser maior que zero e de até R$ 15.000,00.");
+  }
+  const folhaCentavos = lerCentavos(folhaMensal, "Folha / pró-labore mensal previsto");
+  const resultado = calcularFatorR({
+    faturamentoMensal,
+    historico: Array.from({ length: 12 }, () => ({
+      receita: faturamentoMensal, folha: folhaMensal,
+    })),
+  });
+  return {
+    ...resultado,
+    modo: "previsao",
+    faturamentoMensal: rendaCentavos / 100,
+    folhaMensal: folhaCentavos / 100,
+    // Arredonda para cima: um centavo abaixo pode manter o Fator R inferior a 28%.
+    folhaMensalReferencia28: Math.ceil(rendaCentavos * 28 / 100) / 100,
+  };
+}

@@ -1,11 +1,36 @@
 # Fator R para médicos e dentistas
 
-A tela de cálculo PJ coleta o faturamento do mês de apuração e a receita bruta
+A tela de cálculo PJ oferece dois modos para médicos e dentistas:
+
+- **Previsão mensal** (opção inicial): coleta um faturamento mensal e uma folha/pró-labore mensal. Repete os dois valores por 12 meses em um cenário hipotético, sem exigir o preenchimento individual do histórico.
+- **Histórico real de 12 meses**: usa os valores de cada mês anterior, sem substituir meses vazios por projeções.
+
+## Previsão mensal
+
+A função `preverFatorR` reutiliza as mesmas tabelas, validações e arredondamento do cálculo histórico. Os totais projetados são `receita mensal × 12` e `folha mensal × 12`. O resultado identifica o Fator R e o anexo como previstos, mostra o Simples mensal e informa a folha mensal de referência para atingir 28% nesse cenário, arredondada para cima ao centavo.
+
+O faturamento sozinho não determina o Fator R: a folha deve ser informada, inclusive `0` quando não houver. A previsão não substitui os dados reais, não determina o anexo de uma empresa com histórico variável e não implementa as regras específicas de início de atividade.
+
+Exemplos com receita mensal de R$ 8.000, constante durante 12 meses:
+
+| Folha mensal | Fator R previsto | Anexo previsto | Simples mensal previsto |
+| --- | --- | --- | --- |
+| R$ 2.240 | 28% | III | R$ 480 |
+| R$ 2.000 | 25% | V | R$ 1.240 |
+| R$ 0 | 1% (regra para folha zero) | V | R$ 1.240 |
+
+Esses valores não incluem INSS nem eventual IRPF sobre pró-labore. Os dois modos são calculados localmente e não são salvos no histórico de simulações.
+
+Ao mudar o modo ou qualquer entrada, o resultado anterior é removido. Alternar entre os modos preserva os campos preenchidos de cada um; mudar a profissão reinicia os dados de folha e histórico.
+
+## Histórico real de 12 meses
+
+Neste modo, a tela coleta o faturamento do mês de apuração e a receita bruta
 e a despesa mensal elegível com folha/pró-labore de cada um dos **12 meses
 anteriores**. O mês de apuração não faz parte desse histórico. Campos vazios
 não são tratados como zero: meses sem movimento devem ser preenchidos com `0`.
 
-O cálculo usa `FS12 / RBT12`, somando os valores reais informados. Não multiplica
+O cálculo histórico usa `FS12 / RBT12`, somando os valores reais informados. Não multiplica
 um mês por 12 nem calcula a média dos percentuais mensais. Fator R de pelo menos
 28% seleciona o Anexo III; abaixo disso, o Anexo V. A comparação ocorre em centavos
 inteiros, sem arredondar o percentual antes de escolher o anexo. Para FS12 zero
@@ -45,8 +70,9 @@ R$ 1.612,50, respectivamente.
 ## Validação
 
 Na pasta `frontend`, execute `npm test`, `npm run lint` e `npm run build`.
-Os testes cobrem históricos variáveis, o limite exato de 28%, folha zero,
-faixas e alíquotas efetivas, arredondamento e entradas inválidas.
+Os testes cobrem históricos variáveis, previsões com valores constantes, o limite exato de 28%,
+referência de folha arredondada para cima, folha zero, faixas e alíquotas efetivas,
+arredondamento e entradas inválidas.
 
 ## Referências
 

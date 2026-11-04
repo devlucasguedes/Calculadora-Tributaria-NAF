@@ -29,6 +29,14 @@ O gráfico usa SVG responsivo, sem biblioteca adicional. Os dados vêm do mesmo 
 
 Ao alterar profissão, renda ou custos, execute a análise novamente. Frontend e backend devem estar atualizados para receber o campo `pontoEquilibrio` na resposta da API.
 
+## Previsão mensal de Fator R
+
+Em **Cálculo PJ**, selecione **Médico(a)** ou **Dentista** e use **Previsão mensal**. Informe um faturamento e uma folha/pró-labore mensal e clique em **Calcular previsão**. O sistema projeta os mesmos valores por 12 meses e mostra o Fator R, o anexo previsto e o Simples Nacional mensal, com aviso de que é um cenário hipotético.
+
+Para usar os dados efetivos de cada mês, selecione **Histórico real de 12 meses**. A troca entre modos preserva os campos preenchidos, mas invalida o resultado anterior. Somente a renda não define o Fator R: a folha também é obrigatória, podendo ser zero.
+
+O resultado não inclui INSS nem eventual IRPF do pró-labore. Os cálculos de Fator R continuam locais e não aparecem no histórico exportável em CSV. Consulte [as regras e exemplos](../docs/fator-r.md).
+
 ## PDF do comparativo
 
 Após calcular, use **Baixar relatório em PDF**. A exportação inclui:

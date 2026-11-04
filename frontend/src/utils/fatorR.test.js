@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { calcularFatorR } from "./fatorR.js";
+import { calcularFatorR, preverFatorR } from "./fatorR.js";
 
 function historicoConstante(receita = "10000", folha = "2800") {
   return Array.from({ length: 12 }, () => ({ receita, folha }));
@@ -132,4 +132,62 @@ test("mantém o limite do faturamento mensal e recusa históricos fora do escopo
   historico[0].folha = "99999999999999";
   assert.throws(() => calcular(historico), /limite suportado/);
   assert.throws(() => calcular(historicoConstante("10000", "100000000000")), /totais dos 12 meses/);
+});
+
+test("previsão de R$ 8 mil com folha de R$ 2.240 projeta 28% e R$ 480 no Anexo III", () => {
+  const resultado = preverFatorR({ faturamentoMensal: "8000", folhaMensal: "2240" });
+  assert.equal(resultado.modo, "previsao");
+  assert.equal(resultado.receita12Meses, 96000);
+  assert.equal(resultado.folha12Meses, 26880);
+  assert.equal(resultado.fatorR, 0.28);
+  assert.equal(resultado.anexo, "III");
+  assert.equal(resultado.simples, 480);
+  assert.equal(resultado.folhaMensalReferencia28, 2240);
+});
+
+for (const [folhaMensal, anexo, fatorR, simples] of [
+  ["2000", "V", 0.25, 1240],
+  ["2239.99", "V", 2239.99 / 8000, 1240],
+  ["2240.01", "III", 2240.01 / 8000, 480],
+  ["0", "V", 0.01, 1240],
+]) {
+  test(`previsão com receita de R$ 8 mil e folha de ${folhaMensal} usa Anexo ${anexo}`, () => {
+    const resultado = preverFatorR({ faturamentoMensal: "8000", folhaMensal });
+    assert.equal(resultado.anexo, anexo);
+    assert.ok(Math.abs(resultado.fatorR - fatorR) < 1e-12);
+    assert.equal(resultado.simples, simples);
+    assert.equal(resultado.folhaZerada, folhaMensal === "0");
+  });
+}
+
+test("previsão não aceita somente renda nem trata folha vazia como zero", () => {
+  for (const folhaMensal of [undefined, null, "", "-1", "1.001", "1e3", "1,50", Infinity]) {
+    assert.throws(() => preverFatorR({ faturamentoMensal: "8000", folhaMensal }), /Folha \/ pró-labore/);
+  }
+  for (const faturamentoMensal of [undefined, null, "", "0", "15000.01", "-1", "1.001"]) {
+    assert.throws(() => preverFatorR({ faturamentoMensal, folhaMensal: "2240" }), /faturamento/i);
+  }
+});
+
+test("referência de folha é arredondada para cima para realmente atingir 28%", () => {
+  const abaixo = preverFatorR({ faturamentoMensal: "8000.01", folhaMensal: "2240" });
+  assert.equal(abaixo.folhaMensalReferencia28, 2240.01);
+  assert.equal(abaixo.anexo, "V");
+  const limite = preverFatorR({ faturamentoMensal: "8000.01", folhaMensal: "2240.01" });
+  assert.equal(limite.anexo, "III");
+  assert.equal(preverFatorR({ faturamentoMensal: "0.01", folhaMensal: "0" }).folhaMensalReferencia28, 0.01);
+});
+
+test("previsão mantém os limites, o arredondamento e a regra histórica independente", () => {
+  assert.equal(preverFatorR({ faturamentoMensal: "15000", folhaMensal: "4200" }).simples, 900);
+  assert.equal(preverFatorR({ faturamentoMensal: "0.25", folhaMensal: "0.07" }).simples, 0.02);
+  assert.throws(() => preverFatorR({ faturamentoMensal: "8000", folhaMensal: "100000000000" }), /totais dos 12 meses/);
+  const historico = historicoConstante("10000", "2000");
+  historico[0].folha = "3000";
+  historico[1].folha = "1000";
+  const real = calcularFatorR({ faturamentoMensal: "8000", historico });
+  assert.equal(real.fatorR, 0.2);
+  assert.equal(real.anexo, "V");
+  assert.equal(real.modo, undefined);
+  assert.throws(() => calcularFatorR({ faturamentoMensal: "8000", historico: [] }), /12 meses/);
 });

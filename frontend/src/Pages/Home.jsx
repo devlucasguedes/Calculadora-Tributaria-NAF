@@ -205,7 +205,7 @@ return (
                   <span><strong>INSS e pró-labore:</strong> Nos cálculos de médicos e dentistas com Fator R, o resultado mostra somente o Simples Nacional; não inclui INSS nem eventual IRPF sobre o pró-labore. Para as demais profissões, o simulador estima o INSS do pró-labore em 11% sobre 28% do faturamento, respeitado o mínimo de um salário mínimo.</span>
                 </li>
                 <li className="text-xs text-gray-600 border-t border-naf-gray/20 pt-3">
-                  Esta simulação do Fator R exige os dados reais dos 12 meses anteriores, não contempla início de atividade, retenções ou receitas segregadas e limita a RBT12 a R$ 3.600.000,00.{" "}
+                  Você pode fazer uma previsão com um faturamento e uma folha mensal, repetidos por 12 meses, ou informar o histórico real completo. A previsão é hipotética e não determina o enquadramento real. A simulação não contempla início de atividade, retenções ou receitas segregadas e limita a RBT12 a R$ 3.600.000,00.{" "}
                   <a
                     href="https://www.contabilizei.com.br/contabilidade-online/fator-r-simples-nacional/"
                     target="_blank"
