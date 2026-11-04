@@ -29,7 +29,7 @@ A página pública **/sobre** apresenta o NAF / Universidade Christus e o objeti
 
 O botão **Escrever para o NAF** usa um link `mailto:` para abrir o aplicativo de e-mail com destinatário e assunto preenchidos. O endereço fica visível para copiar em outro serviço de e-mail. A página não envia mensagens pelo servidor.
 
-O contato `naf01.dl@unichristus.edu.br` foi consultado na [publicação institucional da Unichristus](https://www.unichristus.edu.br/unichristus-disponibiliza-auxilio-gratuito-para-declaracao-do-imposto-de-renda/). A apresentação do núcleo se baseia na [página de infraestrutura da instituição](https://www.unichristus.edu.br/infraestrutura/). Ambas as fontes estão vinculadas na tela.
+O contato `naf01.dl@unichristus.edu.br` foi consultado na [publicação institucional da Universidade Christus](https://www.unichristus.edu.br/unichristus-disponibiliza-auxilio-gratuito-para-declaracao-do-imposto-de-renda/). A apresentação do núcleo se baseia na [página de infraestrutura da instituição](https://www.unichristus.edu.br/infraestrutura/). Ambas as fontes estão vinculadas na tela.
 
 ## Gráfico de ponto de equilíbrio
 

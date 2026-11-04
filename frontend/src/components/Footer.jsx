@@ -28,7 +28,7 @@ export default function Footer() {
             rel="noopener noreferrer" 
             className="hover:text-naf-red focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-naf-blue rounded px-2 py-1 transition-colors duration-300"
           >
-            Portal Unichristus
+            Portal Universidade Christus
           </a>
           <a 
             href="https://www.instagram.com/naf.unichristus/" 

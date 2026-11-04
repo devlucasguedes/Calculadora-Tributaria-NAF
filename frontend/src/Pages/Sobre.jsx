@@ -34,7 +34,7 @@ export default function Sobre() {
           <section aria-labelledby="sobre-naf" className="min-w-0 rounded-2xl border border-naf-gray/30 bg-white p-6 shadow-sm">
             <h2 id="sobre-naf" className="mb-4 text-xl font-bold text-naf-blue">NAF / Universidade Christus</h2>
             <p className="mb-4 leading-relaxed text-gray-700">
-              O Núcleo de Apoio Contábil e Fiscal (NAF) da Unichristus aproxima a formação
+              O Núcleo de Apoio Contábil e Fiscal (NAF) da Universidade Christus aproxima a formação
               acadêmica das necessidades da comunidade. Em parceria com a Receita Federal,
               oferece orientação contábil e fiscal gratuita a pessoas físicas e jurídicas
               de menor poder aquisitivo.
@@ -44,7 +44,7 @@ export default function Sobre() {
               e supervisão de professores, unindo prática profissional e cidadania fiscal.
             </p>
             <a href={LINK_INSTITUCIONAL} target="_blank" rel="noopener noreferrer" className={linkClass}>
-              Conheça o NAF no site da Unichristus <span className="text-sm">(abre em outra aba)</span>
+              Conheça o NAF no site da Universidade Christus <span className="text-sm">(abre em outra aba)</span>
             </a>
           </section>
 
@@ -81,7 +81,7 @@ export default function Sobre() {
           </p>
           <p className="mt-4 text-sm">
             <a href={FONTE_CONTATO} target="_blank" rel="noopener noreferrer" className={linkClass}>
-              Consulte o contato publicado pela Unichristus (abre em outra aba)
+              Consulte o contato publicado pela Universidade Christus (abre em outra aba)
             </a>
           </p>
         </section>
