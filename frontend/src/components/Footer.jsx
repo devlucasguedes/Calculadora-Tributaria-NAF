@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 export default function Footer() {
   return (
@@ -15,6 +16,12 @@ export default function Footer() {
 
         {/* Links Úteis */}
         <div className="flex flex-wrap justify-center gap-4 md:gap-6 text-sm font-medium">
+          <Link
+            to="/sobre"
+            className="hover:text-naf-red focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-naf-blue rounded px-2 py-1 transition-colors duration-300"
+          >
+            Sobre o projeto
+          </Link>
           <a 
             href="https://unichristus.edu.br/" 
             target="_blank" 
