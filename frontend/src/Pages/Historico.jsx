@@ -3,11 +3,14 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
+import { baixarHistoricoCsv, formatarDataHistorico } from "../utils/csvHistorico";
 
 export default function Historico() {
   const [calculos, setCalculos] = useState([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
+  const [erroExportacao, setErroExportacao] = useState("");
+  const [mensagemExportacao, setMensagemExportacao] = useState("");
   const [isVisible, setIsVisible] = useState(false);
   
   const token = localStorage.getItem("token");
@@ -28,6 +31,7 @@ export default function Historico() {
     const buscarHistorico = async () => {
       try {
         const response = await api.get("/calculos/historico");
+        if (!Array.isArray(response.data)) throw new Error("Histórico inválido.");
         setCalculos(response.data);
       } catch (err) {
         console.error("Erro ao buscar histórico:", err);
@@ -39,6 +43,19 @@ export default function Historico() {
 
     if (token) buscarHistorico();
   }, [token]);
+
+  const exportarHistorico = () => {
+    if (carregando || erro || calculos.length === 0) return;
+    setErroExportacao("");
+    setMensagemExportacao("");
+    try {
+      baixarHistoricoCsv(calculos);
+      setMensagemExportacao(`Download solicitado com ${calculos.length} ${calculos.length === 1 ? "simulação" : "simulações"}.`);
+    } catch (error) {
+      console.error("Erro ao exportar histórico:", error);
+      setErroExportacao("Não foi possível exportar o histórico. Tente novamente ou recarregue a página.");
+    }
+  };
 
   return (
     <div className="flex flex-col min-h-screen bg-[#EFEFEF]">
@@ -55,7 +72,24 @@ export default function Historico() {
 
         {/* Listagem / Tabela */}
         <div className={`w-full max-w-5xl bg-white rounded-3xl shadow-xl border border-gray-200 p-4 sm:p-6 md:p-8 transition-all duration-700 ease-out delay-400 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}>
-          
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-5">
+            <p id="descricao-exportacao" className="text-sm text-gray-700 max-w-xl">
+              Baixe as simulações deste histórico em CSV para abrir no Excel ou em outra planilha.
+              Datas e horários seguem o fuso de Fortaleza (UTC-3).
+            </p>
+            <button
+              type="button"
+              onClick={exportarHistorico}
+              disabled={carregando || Boolean(erro) || calculos.length === 0}
+              aria-describedby="descricao-exportacao"
+              className="w-full sm:w-auto shrink-0 px-5 py-3 bg-[#132436] text-white text-sm font-bold rounded-xl hover:bg-[#0c1825] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#CD371F] focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition cursor-pointer"
+            >
+              Exportar histórico (CSV)
+            </button>
+          </div>
+          <p role="status" className="text-sm text-gray-700 mb-3">{mensagemExportacao}</p>
+          {erroExportacao && <p role="alert" className="text-sm text-naf-red font-semibold mb-3">{erroExportacao}</p>}
+
           <div aria-live="polite">
             {carregando ? (
               <div className="text-center py-10 text-gray-500 font-medium animate-pulse">
@@ -82,7 +116,7 @@ export default function Historico() {
                   {calculos.map((item) => (
                     <div key={item.id} className="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm">
                       <div className="flex justify-between items-center mb-3 border-b border-gray-100 pb-2">
-                        <span className="text-sm font-medium text-gray-500">{new Date(item.createdAt).toLocaleDateString("pt-BR")}</span>
+                        <span className="text-sm font-medium text-gray-500">{formatarDataHistorico(item.createdAt)}</span>
                         <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold uppercase ${
                             item.melhorOpcao.includes("PJ") 
                               ? "bg-green-50 text-green-700 border border-green-200" 
@@ -133,7 +167,7 @@ export default function Historico() {
                       {calculos.map((item) => (
                         <tr key={item.id} className="hover:bg-gray-50/80 transition-colors">
                           <td className="py-4 px-4 font-medium text-gray-500">
-                            {new Date(item.createdAt).toLocaleDateString("pt-BR")}
+                            {formatarDataHistorico(item.createdAt)}
                           </td>
                           <td className="py-4 px-4 capitalize font-semibold text-naf-blue">
                             {item.tipoProfissao}
