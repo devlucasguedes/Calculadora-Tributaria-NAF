@@ -3,7 +3,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
-import { calcularFatorR as calcularSimplesFatorR } from "../utils/fatorR";
+import { calcularFatorR as calcularSimplesFatorR, preverFatorR } from "../utils/fatorR";
 
 const MAX_FATURAMENTO = 15000;
 const SALARIO_MINIMO = 1621;
@@ -97,6 +97,8 @@ export default function CalculoPJ() {
   const [showTooltipRenda, setShowTooltipRenda] = useState(false);
 
   const [historicoFatorR, setHistoricoFatorR] = useState(criarHistoricoFatorR);
+  const [modoFatorR, setModoFatorR] = useState("previsao");
+  const [folhaMensal, setFolhaMensal] = useState("");
   const [resultadoFatorR, setResultadoFatorR] = useState(null);
   const [erroFatorR, setErroFatorR] = useState("");
 
@@ -121,7 +123,7 @@ export default function CalculoPJ() {
     setErroFatorR("");
     setMostrarEmail(false);
     setMensagemEnvio("");
-  }, [profissao, renda, historicoFatorR]);
+  }, [profissao, renda, historicoFatorR, modoFatorR, folhaMensal]);
 
   const handleRendaChange = (e) => {
     const valor = parseFloat(e.target.value);
@@ -150,10 +152,12 @@ export default function CalculoPJ() {
     setResultadoFatorR(null);
     setErroFatorR("");
     try {
-      setResultadoFatorR(calcularSimplesFatorR({
-        faturamentoMensal: renda,
-        historico: historicoFatorR,
-      }));
+      setResultadoFatorR(modoFatorR === "previsao"
+        ? preverFatorR({ faturamentoMensal: renda, folhaMensal })
+        : calcularSimplesFatorR({
+          faturamentoMensal: renda,
+          historico: historicoFatorR,
+        }));
     } catch (error) {
       setErroFatorR(error.message);
     }
@@ -264,6 +268,8 @@ export default function CalculoPJ() {
                 onChange={(e) => {
                   setProfissao(e.target.value);
                   setHistoricoFatorR(criarHistoricoFatorR());
+                  setModoFatorR("previsao");
+                  setFolhaMensal("");
                   setErro("");
                 }}
                 className="w-full border border-naf-gray px-4 py-2 rounded-xl focus:ring-2 focus:ring-naf-red focus:border-transparent outline-none transition delay-75 duration-300 ease-in-out disabled:opacity-60"
@@ -274,6 +280,36 @@ export default function CalculoPJ() {
               </select>
             </div>
 
+            {usaFatorR && (
+              <fieldset className="rounded-xl border border-naf-gray/30 p-3 space-y-3 text-naf-blue">
+                <legend className="px-1 text-sm font-bold">Como deseja calcular o Fator R?</legend>
+                <label htmlFor="modo-fator-r-previsao" className="flex items-start gap-2 text-sm cursor-pointer">
+                  <input
+                    id="modo-fator-r-previsao"
+                    type="radio"
+                    name="modoFatorR"
+                    value="previsao"
+                    checked={modoFatorR === "previsao"}
+                    onChange={() => setModoFatorR("previsao")}
+                    className="mt-1 shrink-0 accent-[#132436] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#CD371F]"
+                  />
+                  <span><strong>Previsão mensal</strong><br />Informe o faturamento e a folha de um mês.</span>
+                </label>
+                <label htmlFor="modo-fator-r-historico" className="flex items-start gap-2 text-sm cursor-pointer">
+                  <input
+                    id="modo-fator-r-historico"
+                    type="radio"
+                    name="modoFatorR"
+                    value="historico"
+                    checked={modoFatorR === "historico"}
+                    onChange={() => setModoFatorR("historico")}
+                    className="mt-1 shrink-0 accent-[#132436] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#CD371F]"
+                  />
+                  <span><strong>Histórico real de 12 meses</strong><br />Use a receita e a folha de cada mês anterior.</span>
+                </label>
+              </fieldset>
+            )}
+
             <div
               className={`transition-all duration-700 ease-out delay-500 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
             >
@@ -282,7 +318,9 @@ export default function CalculoPJ() {
                   htmlFor="renda"
                   className="text-sm font-medium text-naf-blue"
                 >
-                  {usaFatorR ? "Faturamento do mês de apuração (R$)" : "Faturamento Mensal (R$)"}
+                  {usaFatorR
+                    ? modoFatorR === "previsao" ? "Faturamento mensal previsto (R$)" : "Faturamento do mês de apuração (R$)"
+                    : "Faturamento Mensal (R$)"}
                 </label>
 
                 <button
@@ -342,7 +380,38 @@ export default function CalculoPJ() {
               </div>
             </div>
 
-            {usaFatorR && (
+            {usaFatorR && modoFatorR === "previsao" && (
+              <div className="space-y-3 text-naf-blue">
+                <p id="ajudaPrevisaoFatorR" className="rounded-xl border border-naf-gray/30 bg-gray-50 p-3 text-sm">
+                  Esta previsão considera o mesmo faturamento e a mesma folha em todos os 12 meses.
+                  O enquadramento real pode ser diferente se os valores variarem.
+                </p>
+                <div>
+                  <label htmlFor="folhaMensal" className="block mb-1 text-sm font-medium">
+                    Pró-labore / folha mensal prevista (R$)
+                  </label>
+                  <input
+                    id="folhaMensal"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    inputMode="decimal"
+                    value={folhaMensal}
+                    onChange={event => setFolhaMensal(event.target.value)}
+                    placeholder="Ex: 2240"
+                    aria-describedby="ajudaFolhaMensal ajudaPrevisaoFatorR"
+                    className="w-full min-w-0 border border-naf-gray px-4 py-2 rounded-xl focus:ring-2 focus:ring-naf-red focus:border-transparent outline-none"
+                  />
+                  <p id="ajudaFolhaMensal" className="text-xs mt-2">
+                    Informe a folha elegível, incluindo pró-labore e encargos admitidos,
+                    sem distribuição de lucros ou aluguéis. Use 0 se não houver folha.
+                    Somente o faturamento não determina o Fator R.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {usaFatorR && modoFatorR === "historico" && (
               <div
                 className={`transition-all duration-700 ease-out delay-700 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5"}`}
               >
@@ -410,14 +479,12 @@ export default function CalculoPJ() {
                     </fieldset>
                   ))}
                 </div>
+              </div>
+            )}
 
-                <div aria-live="polite">
-                  {erroFatorR && (
-                    <p className="text-naf-red text-sm mt-2 font-medium">
-                      {erroFatorR}
-                    </p>
-                  )}
-                </div>
+            {usaFatorR && (
+              <div aria-live="polite">
+                {erroFatorR && <p role="alert" className="text-naf-red text-sm font-medium">{erroFatorR}</p>}
               </div>
             )}
 
@@ -430,7 +497,7 @@ export default function CalculoPJ() {
                 disabled={calculando}
                 className="w-full bg-naf-blue text-white font-bold py-3 rounded-xl hover:bg-[#0c1825] focus:outline-none focus:ring-2 focus:ring-naf-red focus:ring-offset-2 hover:scale-105 transition-all duration-300 ease-out shadow-md disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100 cursor-pointer"
               >
-                {calculando ? "Calculando..." : "Calcular"}
+                {calculando ? "Calculando..." : usaFatorR && modoFatorR === "previsao" ? "Calcular previsão" : "Calcular"}
               </button>
             </div>
 
@@ -450,23 +517,36 @@ export default function CalculoPJ() {
             <div aria-live="polite">
               {usaFatorR && resultadoFatorR && (
                 <div
+                  id="resultado-fator-r"
+                  role="region"
+                  aria-labelledby="titulo-resultado-fator-r"
                   className={`bg-gray-50 border border-naf-gray/20 rounded-xl shadow-inner mt-4 p-5 transition-all duration-500 ease-out ${isVisible ? "opacity-100" : "opacity-0"}`}
                 >
+                  <h3 id="titulo-resultado-fator-r" className="font-bold text-naf-blue mb-3">
+                    {resultadoFatorR.modo === "previsao" ? "Previsão com valores mensais constantes" : "Resultado pelo histórico informado"}
+                  </h3>
+                  {resultadoFatorR.modo === "previsao" && (
+                    <p className="text-sm text-naf-blue mb-3">
+                      Cenário hipotético: {formatarMoedaFatorR(resultadoFatorR.faturamentoMensal)} de receita e{" "}
+                      {formatarMoedaFatorR(resultadoFatorR.folhaMensal)} de folha por mês, repetidos por 12 meses.
+                      Esta previsão não substitui o cálculo com o histórico real.
+                    </p>
+                  )}
                   <div className="space-y-2 text-sm text-naf-blue">
                     <p>
-                      <strong>Receita dos 12 meses anteriores: </strong>
+                      <strong>{resultadoFatorR.modo === "previsao" ? "Receita projetada em 12 meses: " : "Receita dos 12 meses anteriores: "}</strong>
                       {formatarMoedaFatorR(resultadoFatorR.receita12Meses)}
                     </p>
                     <p>
-                      <strong>Folha dos 12 meses anteriores: </strong>
+                      <strong>{resultadoFatorR.modo === "previsao" ? "Folha projetada em 12 meses: " : "Folha dos 12 meses anteriores: "}</strong>
                       {formatarMoedaFatorR(resultadoFatorR.folha12Meses)}
                     </p>
                     <p>
-                      <strong>Fator R obtido: </strong>
+                      <strong>{resultadoFatorR.modo === "previsao" ? "Fator R previsto: " : "Fator R obtido: "}</strong>
                       {formatarPercentualFatorR(resultadoFatorR.fatorR)}
                     </p>
                     <p>
-                      <strong>Anexo aplicado: </strong>
+                      <strong>{resultadoFatorR.modo === "previsao" ? "Anexo previsto: " : "Anexo aplicado: "}</strong>
                       Anexo {resultadoFatorR.anexo}
                     </p>
                     <p>
@@ -486,6 +566,7 @@ export default function CalculoPJ() {
                       {formatarPercentualFatorR(resultadoFatorR.aliquotaEfetiva)}
                     </p>
                     <p>
+                      {resultadoFatorR.modo === "previsao" && "Neste cenário: "}
                       {resultadoFatorR.anexo === "III"
                         ? "Fator R igual ou superior a 28%: aplicação do Anexo III."
                         : "Fator R inferior a 28%: aplicação do Anexo V."}
@@ -500,8 +581,17 @@ export default function CalculoPJ() {
                     )}
                   </div>
 
+                  {resultadoFatorR.modo === "previsao" && (
+                    <p className="text-sm text-naf-blue mt-3">
+                      <strong>Folha mensal para atingir 28% neste cenário: </strong>
+                      {formatarMoedaFatorR(resultadoFatorR.folhaMensalReferencia28)}.
+                      Essa referência considera valores constantes e não garante o enquadramento de uma empresa com histórico diferente.
+                    </p>
+                  )}
+
                   <p className="text-lg font-bold text-naf-red mt-3 pt-3 border-t border-naf-gray/30">
-                    Simples Nacional estimado: {formatarMoedaFatorR(resultadoFatorR.simples)}
+                    {resultadoFatorR.modo === "previsao" ? "Simples Nacional mensal previsto: " : "Simples Nacional estimado: "}
+                    {formatarMoedaFatorR(resultadoFatorR.simples)}
                   </p>
 
                   <p className="text-xs text-naf-blue mt-3">
