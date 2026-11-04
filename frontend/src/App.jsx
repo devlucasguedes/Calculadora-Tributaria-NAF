@@ -8,6 +8,7 @@ import CalculoPF from "./Pages/CalculoPF";
 import CalculoPJ from "./Pages/CalculoPJ";
 import Comparativo from "./Pages/Comparativo";
 import Historico from "./Pages/Historico";
+import Faq from "./Pages/Faq";
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
       <Routes>
         {/* Rotas Públicas */}
         <Route path="/" element={<Landing />} />
+        <Route path="/faq" element={<Faq />} />
         <Route path="/login" element={<Login />} />
         <Route path="/cadastro" element={<Cadastro />} />
         <Route path="/RecuperarSenha" element={<RecuperarSenha />} />

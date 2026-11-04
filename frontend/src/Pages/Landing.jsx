@@ -1,73 +1,14 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Footer from "../components/Footer";
+import Navbar from "../components/Navbar";
+import ListaFaq from "../components/ListaFaq";
+import { resumoFaq } from "../data/faq";
 
 export default function Landing() {
   const navigate = useNavigate();
-  const [faqAberto, setFaqAberto] = useState(null);
-
-  const faqs = [
-    {
-      pergunta: "Para quem é esta calculadora?",
-      resposta: "Foi desenvolvida especialmente para Psicólogos, Arquitetos e Advogados que desejam descobrir de forma rápida se é mais barato atuar como Pessoa Física ou abrir um CNPJ (Pessoa Jurídica)."
-    },
-    {
-      pergunta: "Quais tributos são considerados no comparativo?",
-      resposta: "Para Pessoa Física, utilizamos a Tabela Progressiva do IRPF abatendo as despesas do Livro Caixa. Para Pessoa Jurídica, aplicamos as alíquotas do Simples Nacional (Anexos III ou IV, dependendo da profissão) e o INSS obrigatório sobre o Pró-labore."
-    },
-    {
-      pergunta: "Vale a pena abrir CNPJ ganhando pouco?",
-      resposta: "Muitas vezes, sim! É um mito que CNPJ é só para quem ganha muito. O nosso comparativo vai te mostrar o ponto de virada onde os 27,5% da Pessoa Física se tornam mais caros que os impostos do Simples Nacional."
-    },
-    {
-      pergunta: "O que é o Fator R que o sistema menciona?",
-      resposta: "No simulador de médicos e dentistas, você pode fazer uma previsão com o faturamento e a folha de um mês, supondo esses valores constantes por 12 meses, ou usar o histórico real dos 12 meses anteriores. Somente o faturamento não determina o Fator R. Com resultado igual ou superior a 28%, aplica-se o Anexo III; abaixo disso, o Anexo V. A previsão é hipotética; o enquadramento real depende do histórico. O resultado mostra o Simples Nacional e não inclui INSS nem eventual IRPF sobre o pró-labore."
-    },
-    {
-      pergunta: "A calculadora substitui um contador?",
-      resposta: "Não. A calculadora é uma ferramenta de simulação e tomada de decisão tributária. Após descobrir o regime mais vantajoso, é fundamental contratar um contador habilitado para realizar a abertura da empresa e gerir as obrigações fiscais."
-    },
-    {
-      pergunta: "Qual é o ano-base dos cálculos da ferramenta?",
-      resposta: "Todos os cálculos, limites de isenção e o salário mínimo vigente (R$ 1.621,00) estão projetados e atualizados rigorosamente para o ano-calendário de 2026."
-    },
-    {
-      pergunta: "O sistema armazena meus dados financeiros?",
-      resposta: "Não. Suas simulações tributárias, informações de renda e custos são processadas localmente no seu navegador e não são armazenadas em nosso banco de dados, garantindo total privacidade."
-    }
-  ];
-
-  const toggleFaq = (index) => {
-    if (faqAberto === index) {
-      setFaqAberto(null);
-    } else {
-      setFaqAberto(index);
-    }
-  };
-
   return (
     <div className="flex flex-col min-h-screen bg-naf-light">
-      <nav className="w-full bg-naf-blue shadow-md py-4">
-        <div className="max-w-6xl mx-auto px-4 flex justify-between items-center">
-          <div className="text-xl font-bold text-white tracking-wide cursor-default">
-            Calculadora Tributária
-          </div>
-          <div className="flex gap-4">
-            <button 
-              onClick={() => navigate("/login")}
-              className="text-white font-medium hover:text-naf-red focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-naf-blue transition cursor-pointer px-2 py-1 rounded"
-            >
-              Entrar
-            </button>
-            <button 
-              onClick={() => navigate("/cadastro")}
-              className="bg-naf-red text-white px-5 py-2 rounded-lg font-bold hover:bg-[#a62b18] focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-naf-blue transition shadow-md hover:scale-105 cursor-pointer"
-            >
-              Criar Conta
-            </button>
-          </div>
-        </div>
-      </nav>
+      <Navbar />
 
       <main className="grow">
         <section className="w-full py-20 px-6 text-center bg-linear-to-b from-naf-blue to-[#0c1825] text-white">
@@ -102,36 +43,11 @@ export default function Landing() {
             <h2 className="text-3xl font-bold text-center text-naf-blue mb-2">Dúvidas Frequentes (FAQ)</h2>
             <p className="text-center text-gray-700 mb-10 font-medium">Entenda como a nossa ferramenta pode ajudar na sua rotina</p>
 
-            <div className="space-y-4">
-              {faqs.map((faq, index) => (
-                <div 
-                  key={index} 
-                  className="bg-white border border-naf-gray/20 rounded-2xl shadow-sm overflow-hidden transition-all duration-300"
-                >
-                  <button
-                    onClick={() => toggleFaq(index)}
-                    aria-expanded={faqAberto === index}
-                    aria-controls={`faq-answer-${index}`}
-                    className="w-full flex justify-between items-center p-6 text-left focus:outline-none focus:ring-2 focus:ring-naf-red hover:bg-gray-50 transition cursor-pointer"
-                  >
-                    <span className="font-bold text-naf-blue text-lg">{faq.pergunta}</span>
-                    <svg 
-                      className={`w-6 h-6 text-naf-red transform transition-transform duration-300 ${faqAberto === index ? 'rotate-180' : ''}`} 
-                      aria-hidden="true"
-                      fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </button>
-                  
-                  <div 
-                    id={`faq-answer-${index}`}
-                    className={`px-6 text-gray-700 text-sm md:text-base leading-relaxed overflow-hidden transition-all duration-300 ease-in-out ${faqAberto === index ? 'max-h-40 pb-6 opacity-100' : 'max-h-0 opacity-0'}`}
-                  >
-                    {faq.resposta}
-                  </div>
-                </div>
-              ))}
+            <ListaFaq perguntas={resumoFaq} />
+            <div className="mt-8 text-center">
+              <Link to="/faq" className="inline-block rounded-xl bg-naf-blue px-6 py-3 font-bold text-white hover:bg-[#0c1825] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-naf-red">
+                Ver todas as perguntas
+              </Link>
             </div>
           </div>
         </section>

@@ -15,6 +15,14 @@ Esta pasta contém a interface gráfica de usuário (Single Page Application) da
 * **Simuladores Conectados:** Telas de Cálculo PF, Cálculo PJ e Análise de Vantagem Comparativa disparando parâmetros ao motor fiscal do servidor e atualizando os estados em tempo real.
 * **Histórico de Simulações:** Página com tabela responsiva que busca e renderiza o histórico de simulações salvas no banco de dados do usuário autenticado.
 
+## Perguntas frequentes
+
+A página pública **/faq** reúne perguntas sobre o uso das calculadoras, o Fator R, o gráfico de ponto de equilíbrio, o histórico e as exportações em PDF e CSV. O link **FAQ** está no menu de visitantes e usuários conectados, incluindo a versão para celular.
+
+As respostas abrem e fecham com clique, Enter ou Espaço, sem limitar a altura do conteúdo. Os atalhos por assunto levam às respectivas seções. A página inicial mantém um resumo e o link **Ver todas as perguntas**; ambos usam o mesmo conteúdo de `src/data/faq.js` e o componente `ListaFaq`.
+
+O FAQ diferencia os cálculos salvos na conta das simulações locais de Fator R e explica a previsão mensal. As rotas das calculadoras, da página inicial e do histórico mantêm seus endereços.
+
 ## Gráfico de ponto de equilíbrio
 
 Em **Home → Gerar Comparativo**, preencha os dados e clique em **Analisar Vantagem Tributária**. Abaixo do resultado aparece um gráfico com:
