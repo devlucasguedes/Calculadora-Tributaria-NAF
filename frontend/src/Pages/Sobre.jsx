@@ -49,12 +49,7 @@ export default function Sobre() {
           </section>
 
           <section aria-labelledby="sobre-calculadora" className="min-w-0 rounded-2xl border border-naf-gray/30 bg-white p-6 shadow-sm">
-            <h2 id="sobre-calculadora" className="mb-4 text-xl font-bold text-naf-blue">A calculadora e a equipe</h2>
-            <p className="mb-4 leading-relaxed text-gray-700">
-              Desenvolvida como projeto acadêmico pela <strong>Equipe ROCKET</strong>,
-              a calculadora apoia a compreensão dos cenários tributários por meio de
-              simulações, gráficos e relatórios.
-            </p>
+            <h2 id="sobre-calculadora" className="mb-4 text-xl font-bold text-naf-blue">A calculadora</h2>
             <p className="mb-4 leading-relaxed text-gray-700">
               O comparativo PF e PJ atende psicólogos, arquitetos e advogados.
               Médicos e dentistas contam com um simulador de Fator R na página Cálculo PJ,

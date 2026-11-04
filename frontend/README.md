@@ -25,7 +25,7 @@ O FAQ diferencia os cálculos salvos na conta das simulações locais de Fator R
 
 ## Sobre o projeto e contato
 
-A página pública **/sobre** apresenta o NAF / Universidade Christus, o objetivo da calculadora e os créditos da Equipe ROCKET. Está disponível pelo menu de visitantes e usuários conectados e pelo link **Sobre o projeto** no rodapé.
+A página pública **/sobre** apresenta o NAF / Universidade Christus e o objetivo da calculadora. Está disponível pelo menu de visitantes e usuários conectados e pelo link **Sobre o projeto** no rodapé.
 
 O botão **Escrever para o NAF** usa um link `mailto:` para abrir o aplicativo de e-mail com destinatário e assunto preenchidos. O endereço fica visível para copiar em outro serviço de e-mail. A página não envia mensagens pelo servidor.
 
