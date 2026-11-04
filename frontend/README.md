@@ -41,7 +41,20 @@ Após calcular, use **Baixar relatório em PDF**. A exportação inclui:
 
 O PDF usa os valores do resultado, sem recalcular os tributos. O layout A4 é independente da largura da tela; o controle interativo de renda não altera a simulação exportada. A biblioteca de PDF é carregada somente ao solicitar o download. Uma falha na exportação exibe uma mensagem e permite tentar novamente.
 
+## Exportação do histórico em CSV
+
+Em **Histórico**, clique em **Exportar histórico (CSV)**. O arquivo contém todas as simulações carregadas da conta conectada, na mesma ordem da listagem, com data, hora, profissão, faturamento, custos dedutíveis, impostos PF/PJ, melhor opção e economia mensal. Não inclui identificadores internos, dados de login ou simulações de outras contas.
+
+A exportação usa os registros já consultados, sem recalcular tributos ou gravar novas simulações. O botão fica desabilitado durante o carregamento, em caso de erro e quando o histórico está vazio. Mensagens de sucesso e erro são anunciadas a leitores de tela.
+
+O CSV usa UTF-8 com BOM, separador `;`, vírgula decimal e duas casas decimais, sem separador de milhar. As datas e horas usam Fortaleza (UTC-3), inclusive na tela. Custos ausentes em registros antigos ficam vazios; zero é exportado como `0,00`. Textos com aspas e quebras de linha são escapados; textos com início de fórmula recebem um apóstrofo de proteção.
+
+No Excel configurado para outro separador, importe por **Dados → De Texto/CSV**, escolhendo UTF-8, ponto e vírgula e localidade Português (Brasil). A exportação é CSV, sem gerar um arquivo XLSX.
+
+Execute `npm test` para verificar valores, datas, ordem, campos ausentes e escape do CSV.
+
 ## 🚀 Execução Local (Desenvolvimento Isolado)
+
 Se preferir rodar ou testar apenas a interface do React de forma isolada sem o Docker Compose da raiz:
 
 ### Passo a Passo
