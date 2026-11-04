@@ -14,9 +14,11 @@ export default function Navbar() {
     { to: "/comparativo", label: "Comparativo" },
     { to: "/historico", label: "Histórico" },
     { to: "/faq", label: "FAQ" },
+    { to: "/sobre", label: "Sobre" },
   ] : [
     { to: "/", label: "Página Inicial" },
     { to: "/faq", label: "FAQ" },
+    { to: "/sobre", label: "Sobre" },
     { to: "/login", label: "Entrar" },
     { to: "/cadastro", label: "Criar Conta" },
   ];

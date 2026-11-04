@@ -23,6 +23,14 @@ As respostas abrem e fecham com clique, Enter ou Espaço, sem limitar a altura d
 
 O FAQ diferencia os cálculos salvos na conta das simulações locais de Fator R e explica a previsão mensal. As rotas das calculadoras, da página inicial e do histórico mantêm seus endereços.
 
+## Sobre o projeto e contato
+
+A página pública **/sobre** apresenta o NAF / Universidade Christus e o objetivo da calculadora. Está disponível pelo menu de visitantes e usuários conectados e pelo link **Sobre o projeto** no rodapé.
+
+O botão **Escrever para o NAF** usa um link `mailto:` para abrir o aplicativo de e-mail com destinatário e assunto preenchidos. O endereço fica visível para copiar em outro serviço de e-mail. A página não envia mensagens pelo servidor.
+
+O contato `naf01.dl@unichristus.edu.br` foi consultado na [publicação institucional da Universidade Christus](https://www.unichristus.edu.br/unichristus-disponibiliza-auxilio-gratuito-para-declaracao-do-imposto-de-renda/). A apresentação do núcleo se baseia na [página de infraestrutura da instituição](https://www.unichristus.edu.br/infraestrutura/). Ambas as fontes estão vinculadas na tela.
+
 ## Gráfico de ponto de equilíbrio
 
 Em **Home → Gerar Comparativo**, preencha os dados e clique em **Analisar Vantagem Tributária**. Abaixo do resultado aparece um gráfico com:
