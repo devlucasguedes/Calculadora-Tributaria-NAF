@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { useNavigate } from "react-router-dom";
-import html2pdf from "html2pdf.js";
 import api from "../services/api";
 import GraficoPontoEquilibrio from "../components/GraficoPontoEquilibrio";
 
@@ -20,6 +19,7 @@ export default function Comparativo() {
   const [email, setEmail] = useState("");
   const [mensagemEnvio, setMensagemEnvio] = useState("");
   const [gerandoPdf, setGerandoPdf] = useState(false);
+  const [erroPdf, setErroPdf] = useState("");
   const [calculando, setCalculando] = useState(false);
 
   const token = localStorage.getItem("token");
@@ -59,6 +59,7 @@ export default function Comparativo() {
     }
 
     setCalculando(true);
+    setErroPdf("");
     setResultado(null);
     try {
       const response = await api.post("/calculos", {
@@ -88,6 +89,7 @@ export default function Comparativo() {
       const siglaVencedora = melhorOpcao.includes("PJ") ? "PJ" : "PF";
 
       setResultado({
+        simulacao: { profissao, faturamento: rendaNum, custos: custosNum },
         pontoEquilibrio: response.data.pontoEquilibrio,
         pf: { base: basePF, faixa: faixaPF, parcelaDedutivel, imposto: impostoPF },
         pj: { simples: rendaNum * (profissao === "advogado" ? 0.045 : 0.06), aliquota: aliquotaPJ, salarioBase, inss, total: impostoPJ },
@@ -118,27 +120,19 @@ export default function Comparativo() {
   };
 
   const gerarPDF = async () => {
+    if (gerandoPdf || !resultado || typeof resultado === "string") return;
     setGerandoPdf(true);
-    const elemento = document.getElementById("resultado-comparativo");
-    
-    if (!elemento) {
-      console.error("Erro interno: A div do PDF não foi encontrada.");
-      setGerandoPdf(false);
-      return;
-    }
+    setErroPdf("");
+    const simulacaoConcluida = resultado;
+    const emitidoEm = new Date();
 
     try {
-      const opcoes = {
-        margin:       10,
-        filename:     `Comparativo_Tributario_${profissao}.pdf`,
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2, useCORS: true }, 
-        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-      };
-
-      await html2pdf().set(opcoes).from(elemento).save();
+      const { criarPdfComparativo } = await import("../utils/pdfComparativo");
+      const documento = criarPdfComparativo(simulacaoConcluida, emitidoEm);
+      await documento.save(`Comparativo_Tributario_${simulacaoConcluida.simulacao.profissao}.pdf`, { returnPromise: true });
     } catch (error) {
       console.error("Falha ao processar o arquivo PDF:", error);
+      setErroPdf("Não foi possível gerar o PDF. Tente novamente.");
     } finally {
       setGerandoPdf(false);
     }
@@ -294,8 +288,13 @@ export default function Comparativo() {
                 <div className="px-6 md:px-8 pb-8 pt-4 flex flex-col gap-4 border-t border-gray-200">
                   <button onClick={gerarPDF} disabled={gerandoPdf} className={`w-full bg-[#132436] text-white font-bold py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#132436] focus:ring-offset-2 transition-all duration-300 shadow-md flex items-center justify-center gap-2 cursor-pointer ${gerandoPdf ? 'opacity-70 cursor-wait' : 'hover:bg-[#0c1825] hover:-translate-y-1'}`}>
                     <svg className={`w-5 h-5 ${gerandoPdf ? 'animate-bounce' : ''}`} aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                    {gerandoPdf ? "Processando e Baixando PDF..." : "Baixar Relatório Oficial em PDF"}
+                    {gerandoPdf ? "Processando e Baixando PDF..." : "Baixar relatório em PDF"}
                   </button>
+                  <p className="text-sm text-gray-700">
+                    Inclui o gráfico PF × PJ, a memória de cálculo e o ponto de equilíbrio, quando disponível.
+                    Os valores são estimativas.
+                  </p>
+                  {erroPdf && <p role="alert" className="text-sm font-medium text-[#CD371F]">{erroPdf}</p>}
 
                   <div className="text-center mt-2">
                     <button onClick={() => setMostrarEmail(!mostrarEmail)} aria-expanded={mostrarEmail} aria-controls="sessao-email" className="text-sm font-bold text-gray-500 hover:text-[#132436] focus:outline-none focus:ring-2 focus:ring-[#132436] focus:ring-offset-2 rounded px-2 py-1 transition-colors underline cursor-pointer bg-transparent border-none">
